@@ -1,0 +1,69 @@
+package dao
+
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
+import javax.inject.Singleton
+import play.api.db.Database
+import play.api.db.slick.DatabaseConfigProvider
+import slick.jdbc.JdbcProfile
+import model.User
+import scala.concurrent.Future
+
+@Singleton
+class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends IUserDao {
+
+  val dbConfig = dbConfigProvider.get[JdbcProfile]
+
+  import dbConfig._
+  import profile.api._
+
+  private class UserTable(tag: Tag) extends Table[User](tag, "User") {
+
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+
+    def userName = column[String]("user_name")
+
+    def email = column[String]("email")
+
+    def passWord = column[String]("password")
+
+    override def * = (id, userName, email, passWord) <> ((User.apply _).tupled, User.unapply)
+
+  }
+
+  private val users = TableQuery[UserTable]
+
+  override def register(user: User): Future[Int] = {
+    println(user.toString() + "db hash")
+    val action = ((users returning users.map(_.id)) += user).transactionally
+    db.run(action).map(id => id)
+  }
+
+  override def isExist(email: String): Future[Option[User]] = {
+    db.run(users.filter(_.email === email).result.headOption)
+
+  }
+    
+   override def login(user:User):Future[Option[User]]={
+     db.run((users.filter(_.email === user.emailId)).result.headOption)
+   }
+  
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+}
