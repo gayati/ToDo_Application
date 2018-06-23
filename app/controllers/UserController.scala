@@ -61,13 +61,24 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
 
   }
   
-//   def login() = Action.async{ implicit request: Request[AnyContent] =>
-//     
-//     request.body.asJson.map{ json =>
-//      var user: LoginDto= json.as[LoginDto]
-//       
-//     }
-//  }
+   def login() = Action.async{ implicit request: Request[AnyContent] =>
+     
+     request.body.asJson.map{ json =>
+      var user: LoginDto= json.as[LoginDto]
+        userService.loginUser(user).map {
+        loginFuture => Ok(loginFuture)
+//          if (!loginFuture.isEmpty()) {
+//            var token = loginFuture
+//            Ok(token).withHeaders("Authorization" -> token)
+//          } else {
+//            Conflict("User is not loggedin")
+//          }
+      }
+    }.getOrElse(Future {
+      BadRequest("User has made a bad request")
+    })
+     
+  }
 //    def loginUser() = Action.async { implicit request: Request[AnyContent] =>
 //
 //    request.body.asJson.map { json =>
