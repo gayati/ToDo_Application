@@ -1,7 +1,6 @@
-package utility
+package utilities
 import javax.inject.Singleton
 import java.util.regex.Pattern
-import play.api.data.validation.Constraints
 
 @Singleton
 class UserValidation {

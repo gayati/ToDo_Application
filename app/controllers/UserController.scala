@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import javax.inject.Singleton
 import org.mindrot.jbcrypt.BCrypt
-import utility.UserValidation
+import utilities.UserValidation
 import model.LoginDto
 import model.RegisterDto
 
@@ -21,15 +21,19 @@ import model.RegisterDto
 class UserController @Inject() (userService: IUserService, uservalidation: UserValidation, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def register() = Action.async { implicit request: Request[AnyContent] =>
+
+    // var host:String = request.
+
     // var result: Result = null
+
     request.body.asJson match {
       case Some(json) => {
         var user: RegisterDto = json.as[RegisterDto]
         //val b = uservalidation.emailValidate(user.emailId)
         println(uservalidation.emailValidate(user.emailId))
-        if (uservalidation.emailValidate(user.emailId)) {
+        if ((uservalidation.emailValidate(user.emailId)) && (uservalidation.passwordValidate(user.password))) {
           var passwordHash: String = BCrypt.hashpw(user.password, BCrypt.gensalt());
-          var user1 = RegisterDto( user.username, user.emailId, passwordHash)
+          var user1 = RegisterDto(user.username, user.emailId, passwordHash)
           println(user1.toString() + "hassh")
           userService.isUserExist(user1.emailId) map {
             userFuture =>
@@ -60,44 +64,21 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     }
 
   }
-  
-   def login() = Action.async{ implicit request: Request[AnyContent] =>
-     
-     request.body.asJson.map{ json =>
-      var user: LoginDto= json.as[LoginDto]
-        userService.loginUser(user).map {
+
+  def login() = Action.async { implicit request: Request[AnyContent] =>
+
+    request.body.asJson.map { json =>
+      var userLogin: LoginDto = json.as[LoginDto]
+      userService.loginUser(userLogin).map {
         loginFuture => Ok(loginFuture)
-//          if (!loginFuture.isEmpty()) {
-//            var token = loginFuture
-//            Ok(token).withHeaders("Authorization" -> token)
-//          } else {
-//            Conflict("User is not loggedin")
-//          }
       }
     }.getOrElse(Future {
       BadRequest("User has made a bad request")
     })
-     
+
   }
-//    def loginUser() = Action.async { implicit request: Request[AnyContent] =>
-//
-//    request.body.asJson.map { json =>
-//      var user: UserLoginDto = json.as[UserLoginDto]
-//
-//      userService.login(user).map {
-//        loginFuture =>
-//          if (!loginFuture.isEmpty()) {
-//            var token = loginFuture
-//            Ok(token).withHeaders("Authorization" -> token)
-//          } else {
-//            Conflict("User is not loggedin")
-//          }
-//      }
-//    }.getOrElse(Future {
-//      BadRequest("User has made a bad request")
-//    })
-//  }
  
+
 }
  
 

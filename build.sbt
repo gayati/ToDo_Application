@@ -13,12 +13,13 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2
 libraryDependencies += "com.typesafe.play" %% "play" % "2.5.0-M1"
 
 libraryDependencies += "com.typesafe.play" %% "play-slick" % "3.0.3"
+
 libraryDependencies += "com.typesafe.play" %% "play-slick-evolutions" % "3.0.3"
 
 libraryDependencies += specs2 % Test
 
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.23"
 
-libraryDependencies += "org.webjars" % "bootstrap" % "3.1.1-2"
-
 libraryDependencies += "org.mindrot" % "jbcrypt" % "0.3m"
+
+

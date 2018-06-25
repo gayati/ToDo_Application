@@ -5,7 +5,7 @@ import scala.concurrent.ExecutionContext
 import model.{ User, RegisterDto }
 import scala.concurrent.Future
 import javax.inject.Singleton
-import utility.UserValidation
+import utilities.UserValidation
 import dao.IUserDao
 import model.LoginDto
 import org.mindrot.jbcrypt.BCrypt
@@ -39,7 +39,7 @@ class UserService @Inject() (validation: UserValidation, userDao: IUserDao)(impl
     userDao.login(tempUser).map { loginFuture =>
       if (!(loginFuture.equals(None))) {
         tempUser = loginFuture.get
-        if ((BCrypt.checkpw(loginDto.password, tempUser.password)) && (tempUser.emailId.equals(loginDto.emailId))) {
+        if ((BCrypt.checkpw(loginDto.password, tempUser.password))) {
           "Login Success"
         } else {
           "Login Failed"
@@ -47,7 +47,6 @@ class UserService @Inject() (validation: UserValidation, userDao: IUserDao)(impl
       } else {
         "Login Failed"
       }
-      //
     }
   }
 
