@@ -27,7 +27,9 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
     def passWord = column[String]("password")
 
-    override def * = (id, userName, email, passWord) <> ((User.apply _).tupled, User.unapply)
+    def isVerified = column[Boolean]("isverified")
+
+    override def * = (id, userName, email, passWord, isVerified) <> ((User.apply _).tupled, User.unapply)
 
   }
 
@@ -43,27 +45,24 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     db.run(users.filter(_.email === email).result.headOption)
 
   }
-    
-   override def login(user:User):Future[Option[User]]={
-     db.run((users.filter(_.email === user.emailId)).result.headOption)
-   }
-  
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+
+  override def login(user: User): Future[Option[User]] = {
+    db.run((users.filter(_.email === user.emailId)).result.headOption)
+  }
+
+  override def getUsetByEmail(email: String): Future[Option[User]] = {
+    db.run((users.filter(_.email === email).result.headOption))
+  }
+
+  def getUserById(id: Int): Future[Option[User]] = {
+    db.run((users.filter(_.id === id)).result.headOption)
+  }
+  override def update(user: User): Future[Int] = {
+    println(user.toString() + "user updated")
+    db.run(users.filter(_.id === user.id).update(user))
+  }
+
+  override def getUserByemail(emailid: String): Future[Option[User]] = {
+    db.run(users.filter(_.email === emailid).result.headOption)
+  }
 }

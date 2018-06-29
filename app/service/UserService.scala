@@ -9,44 +9,142 @@ import utilities.UserValidation
 import dao.IUserDao
 import model.LoginDto
 import org.mindrot.jbcrypt.BCrypt
+import utilities.JwtToken
+import utilities.MailSender
+import model.ForgotPasswordDto
+import model.PasswordDto
+import play.api.cache.redis._
 
 @Singleton
-class UserService @Inject() (validation: UserValidation, userDao: IUserDao)(implicit ec: ExecutionContext) extends IUserService {
+class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, jwttoken: JwtToken, mailsender: MailSender)(implicit ec: ExecutionContext) extends IUserService {
 
-  override def registerUser(user: RegisterDto): Future[String] = {
-    val user1 = User(0, user.username, user.emailId, user.password)
-    userDao.register(user1)
-    Future { "Successfully registered" }
-    //    println(user.toString() + "service hash")
-    //    if ((validation.emailValidate(user.emailId))) {
-    //      userDao.register(user).map({
-    //        Future => "Success.."
-    //      }).recover {
-    //        case e: Exception => e.getMessage
-    //      }
-    //    } else {
-    //      Future { "Please enter valid fields" }
-    //    }
+  override def registerUser(url: String, host: String, user: RegisterDto): Future[String] = {
+    //val user1 = User(0, user.username, user.emailId, user.password)
+
+    if (uservalidation.emailValidate(user.emailId) &&
+      uservalidation.passwordValidate(user.password)) {
+      var passwordHash: String = BCrypt.hashpw(user.password, BCrypt.gensalt());
+      var user1 = User(0, user.username, user.emailId, passwordHash, false)
+      println(user1.toString() + "hassh")
+      userDao.isExist(user1.emailId) map {
+        userFuture =>
+          userFuture match {
+            case Some(user1) => {
+              "User already exists"
+            }
+            case None => {
+              print(userFuture.toString() + "return")
+              userDao.register(user1) map {
+                userIdFuture =>
+                  var id = userIdFuture
+                  val token = jwttoken.generateToken(id)
+                  println(token)
+                  var emailTo: String = user1.emailId
+                  val subject: String = "Link to activate your account"
+                  // val message:String = "hi"
+                  val message: String = "Please visit the given link to activate your account \n http://" + host + "/activateuser/" + token;
+                  mailsender.sendMail(emailTo, subject, message)
+              }
+              "User registration successful"
+            }
+          }
+      }
+    } else {
+      Future { "Please enter valid fields" }
+    }
+  }
+  //    println(user.toString() + "service hash")
+  //    if ((validation.emailValidate(user.emailId))) {
+  //      userDao.register(user).map({
+  //        Future => "Success.."
+  //      }).recover {
+  //        case e: Exception => e.getMessage
+  //      }
+  //    } else {
+  //      Future { "Please enter valid fields" }
+  //    }
+
+  //  override def isUserExist(email: String): Future[Option[User]] = {
+  //    //println(User.toString() + "isExist")
+  //    userDao.isExist(email)
+  //  }
+
+  def getUser(tokenId: String) = {
+    val id: Int = jwttoken.getTokenId(tokenId)
+    print(id)
+    userDao.getUserById(id).map({
+      userFuture => userFuture
+    })
   }
 
-  override def isUserExist(email: String): Future[Option[User]] = {
-    //println(User.toString() + "isExist")
-    userDao.isExist(email)
+  override def activateUser(tokenId: String): Future[String] = {
+    val id: Int = jwttoken.getTokenId(tokenId)
+    userDao.getUserById(id).map({ userFuture =>
+      var user = userFuture.get
+      user = User(user.id, user.username, user.emailId, user.password, true)
+      println(user.toString())
+      userDao.update(user).map({ updateFuture =>
+        updateFuture
+        println(updateFuture)
+        "User sucessfully verified"
+      })
+      "User successfully verified"
+    })
   }
 
   override def loginUser(loginDto: LoginDto): Future[String] = {
-    var tempUser: User = User(0, "", loginDto.emailId, "")
-    userDao.login(tempUser).map { loginFuture =>
-      if (!(loginFuture.equals(None))) {
-        tempUser = loginFuture.get
-        if ((BCrypt.checkpw(loginDto.password, tempUser.password))) {
-          "Login Success"
+    var tempUser: User = User(0, "", loginDto.emailId, "", false)
+    if (uservalidation.emailValidate(tempUser.emailId)) {
+      userDao.login(tempUser).map { loginFuture =>
+        if (!(loginFuture.equals(None))) {
+          tempUser = loginFuture.get
+          if ((BCrypt.checkpw(loginDto.password, tempUser.password)) && tempUser.isVerified == true) {
+            "Login Success"
+          } else {
+            "Login Failed"
+          }
         } else {
-          "Login Failed"
+          "User is not registered,Please registered first"
         }
-      } else {
-        "Login Failed"
       }
+    } else {
+      Future { "Please enter valid fields" }
+    }
+  }
+
+  override def forgotUserPassword(passwordDto: ForgotPasswordDto): Future[String] = {
+
+    userDao.getUserByemail(passwordDto.emailId).map { userFuture =>
+      var user = userFuture.get
+      if (user.isVerified == true) {
+        val token: String = jwttoken.generateToken(user.id)
+        var emailTo: String = user.emailId
+        val subject: String = "Link to activate your account"
+        val message: String = "Please visit the given link to activate your account \n http://" +
+          "localhost:9000" + "/resetpassword/" + token;
+        mailsender.sendMail(emailTo, subject, message)
+        "User found"
+      } else {
+        "User not found"
+      }
+    }
+  }
+
+  override def resetUserPassword(token: String, passwordDto: PasswordDto): Future[String] = {
+    val id = jwttoken.getTokenId(token)
+    userDao.getUserById(id).map { userFuture =>
+      var user = userFuture.get
+      var passwordHash: String = BCrypt.hashpw(passwordDto.password, BCrypt.gensalt());
+      user = User(user.id, user.username, user.emailId, passwordHash, user.isVerified)
+      userDao.update(user).map { updateFuture =>
+        updateFuture
+        "Password is successfully reset"
+      }
+    }.recover {
+      case e: Exception => (e.printStackTrace())
+    }
+    Future {
+      "Password is successfully reset"
     }
   }
 
