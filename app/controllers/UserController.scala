@@ -18,6 +18,7 @@ import model.LoginDto
 import model.RegisterDto
 import model.ForgotPasswordDto
 import model.PasswordDto
+import model.NoteDto
 
 @Singleton
 class UserController @Inject() (userService: IUserService, uservalidation: UserValidation, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -57,7 +58,6 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     }.getOrElse(Future {
       BadRequest("")
     })
-
   }
 
   def resetPassword(token: String) = Action.async { implicit request: Request[AnyContent] =>
@@ -115,31 +115,9 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     }.getOrElse(Future {
       BadRequest("User has made a bad request")
     })
-
   }
-
+  
+//  
 }
  
 
-//    request.body.asJson.map { json =>
-//      var user: User = json.as[User]
-//    if (uservalidation.emailValidate(user.emailId)) {
-//      userService.isUserExist(user.emailId).map { userFuture =>
-//        if (userFuture.equals(None)) {
-//          userService.registerUser(user).map {
-//            Ok("registration success")
-//          }
-//        } else {
-//          Ok("User Already exist")
-//        }
-//
-//      } 
-//    }
-//    else{
-//          Future { Ok("Please enter valid fields") }
-//        }
-//    }.getOrElse(Future {
-//      BadRequest("Something went wrong in json parsing....")
-//    })
-//  }
-//}

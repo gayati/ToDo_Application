@@ -14,10 +14,13 @@ import utilities.MailSender
 import model.ForgotPasswordDto
 import model.PasswordDto
 import play.api.cache.redis._
+import utilities.RedisCache
+import model.NoteDto
 
 @Singleton
-class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, jwttoken: JwtToken, mailsender: MailSender)(implicit ec: ExecutionContext) extends IUserService {
+class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, jwttoken: JwtToken, mailsender: MailSender, rediscache: RedisCache)(implicit ec: ExecutionContext) extends IUserService {
 
+ 
   override def registerUser(url: String, host: String, user: RegisterDto): Future[String] = {
     //val user1 = User(0, user.username, user.emailId, user.password)
 
@@ -28,6 +31,7 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
       println(user1.toString() + "hassh")
       userDao.isExist(user1.emailId) map {
         userFuture =>
+          println(userFuture + "UserFuture")
           userFuture match {
             case Some(user1) => {
               "User already exists"
@@ -41,9 +45,9 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
                   println(token)
                   var emailTo: String = user1.emailId
                   val subject: String = "Link to activate your account"
-                  // val message:String = "hi"
                   val message: String = "Please visit the given link to activate your account \n http://" + host + "/activateuser/" + token;
                   mailsender.sendMail(emailTo, subject, message)
+                  rediscache.saveToken(Integer.toString(id), token)
               }
               "User registration successful"
             }
@@ -79,17 +83,27 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
 
   override def activateUser(tokenId: String): Future[String] = {
     val id: Int = jwttoken.getTokenId(tokenId)
-    userDao.getUserById(id).map({ userFuture =>
-      var user = userFuture.get
-      user = User(user.id, user.username, user.emailId, user.password, true)
-      println(user.toString())
-      userDao.update(user).map({ updateFuture =>
-        updateFuture
-        println(updateFuture)
-        "User sucessfully verified"
-      })
-      "User successfully verified"
-    })
+    rediscache.findToken(Integer.toString(id)).map { tokefuture =>
+      val token = tokefuture.get
+      println("return token" + token)
+      println("tokenId: " + tokenId)
+      if (token.equals(tokenId)) {
+        userDao.getUserById(id).map({ userFuture =>
+          var user = userFuture.get
+          user = User(user.id, user.username, user.emailId, user.password, true)
+          println(user.toString())
+          userDao.update(user).map({ updateFuture =>
+            updateFuture
+            println(updateFuture)
+            "User sucessfully verified"
+          })
+          "User successfully verified"
+        })
+        "User successfully verified and activated"
+      } else {
+        "User not activated"
+      }
+    }
   }
 
   override def loginUser(loginDto: LoginDto): Future[String] = {
@@ -113,7 +127,6 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
   }
 
   override def forgotUserPassword(passwordDto: ForgotPasswordDto): Future[String] = {
-
     userDao.getUserByemail(passwordDto.emailId).map { userFuture =>
       var user = userFuture.get
       if (user.isVerified == true) {
@@ -147,5 +160,8 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
       "Password is successfully reset"
     }
   }
+//  
+
+  
 
 }

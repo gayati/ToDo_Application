@@ -24,3 +24,9 @@ case class PasswordDto(password: String)
 object PasswordDto {
   implicit val PasswordDto = Json.format[PasswordDto]
 }
+
+case class NoteDto(title: String, description: String)
+
+object NoteDto {
+  implicit val NoteDto = Json.format[NoteDto]
+}

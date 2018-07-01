@@ -3,6 +3,7 @@ package dao
 import model.User
 import scala.concurrent.Future
 import com.google.inject.ImplementedBy
+import model.Note
 
 @ImplementedBy(classOf[UserDao])
 trait IUserDao {

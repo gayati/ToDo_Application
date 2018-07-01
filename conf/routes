@@ -10,6 +10,9 @@ POST   /login                  controllers.UserController.login()
 GET    /activateuser/:token    controllers.UserController.isActivated(token)
 POST   /forgotpassword         controllers.UserController.forgotPassword()
 POST   /resetpassword/:token   controllers.UserController.resetPassword(token)
+POST   /createNote             controllers.NoteController.createNote()
+POST   /deleteNote             controllers.NoteController.deleteNote()
+
 
 
 

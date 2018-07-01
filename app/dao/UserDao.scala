@@ -8,6 +8,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 import model.User
 import scala.concurrent.Future
+import model.Note
 
 @Singleton
 class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends IUserDao {
@@ -34,10 +35,11 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   }
 
   private val users = TableQuery[UserTable]
+  
+  
 
   override def register(user: User): Future[Int] = {
-    println(user.toString() + "db hash")
-    val action = ((users returning users.map(_.id)) += user).transactionally
+    val action = ((users returning users.map(_.id)) += user)
     db.run(action).map(id => id)
   }
 
@@ -65,4 +67,18 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   override def getUserByemail(emailid: String): Future[Option[User]] = {
     db.run(users.filter(_.email === emailid).result.headOption)
   }
+  
+//  override def createNote(note:Note):Future[String]={
+//    
+//  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 }
