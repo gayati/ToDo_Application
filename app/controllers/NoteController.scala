@@ -9,9 +9,12 @@ import play.api.mvc.AbstractController
 import model.NoteDto
 import service.INoteService
 import scala.concurrent.Future
+import model.NoteIdDto
+import play.api.libs.json.Json
+import model.Note
 
 @Singleton
-class NoteController @Inject() (noteService:INoteService,cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+class NoteController @Inject() (noteService: INoteService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def createNote() = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
@@ -23,15 +26,22 @@ class NoteController @Inject() (noteService:INoteService,cc: ControllerComponent
       BadRequest("User has made a bad request")
     })
   }
-  
+
   def deleteNote() = Action.async { implicit request: Request[AnyContent] =>
-    request.body.asJson.map { json =>
+  request.body.asJson.map { json =>
       var note: NoteDto = json.as[NoteDto]
-      noteService.deleteNote(note.title) map { deleteFuture =>
+      noteService.deleteNote(note) map { deleteFuture =>
         Ok(deleteFuture)
       }
     }.getOrElse(Future {
-      BadRequest("User has made a bad request")
+      BadRequest("")
     })
   }
+
+//  def updateNote() = Action.async { implicit request: Request[AnyContent] =>
+//    request.body.asJson.map { json =>
+//      var note: NoteIdDto = json.as[NoteIdDto]
+//
+//    }
+//  }
 }

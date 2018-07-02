@@ -15,15 +15,33 @@ class NoteService @Inject() (noteDao: INoteDao)(implicit ec: ExecutionContext) e
 
   override def createNote(noteDto: NoteDto): Future[String] = {
     val note = Note(0, noteDto.title, noteDto.description)
-    noteDao.createNote(note) map { createNoteFuture => createNoteFuture
-    "Note Created successfully"
+    noteDao.createNote(note) map { createNoteFuture =>
+      createNoteFuture
+      "Note Created successfully"
     }
   }
-  
-  
-  override def deleteNote(title:String):Future[String]={
-   noteDao.deleteNote(title) map { deletenoteFuture => deletenoteFuture 
-    "User Successfully deleted..."  
-   }
+
+  override def deleteNote(note:NoteDto): Future[String] = {
+     noteDao.getNoteBytitle(note.title) map { futureNote => futureNote 
+     var note = futureNote.get
+    noteDao.deleteNote(note.noteId) map { deletenoteFuture =>
+      deletenoteFuture
+      "Note Successfully deleted..."
+    }
+    "" 
+     }
+  }
+
+  override def updateNote(note:NoteDto): Future[String] = {
+     noteDao.getNoteBytitle(note.title) map { futureNote => futureNote 
+     var note = futureNote.get
+     note = Note(note.noteId,note.title,note.description)
+     noteDao.updateNote(note) map { updatenoteFuture =>
+      updatenoteFuture
+      "Note Successfully updated..."
+    }
+    ""
+    }
+    
   }
 }

@@ -14,7 +14,7 @@ trait IUserService {
   // def isUserExist(email: String): Future[Option[User]]
   def loginUser(user: LoginDto): Future[String]
   def activateUser(token: String): Future[String]
-  def forgotUserPassword(passwordDto: ForgotPasswordDto): Future[String]
+  def forgotUserPassword(host:String,passwordDto: ForgotPasswordDto): Future[String]
   def resetUserPassword(token: String, passwordDto: PasswordDto): Future[String]
   //def createNote(noteDto:NoteDto): Future[String]
   

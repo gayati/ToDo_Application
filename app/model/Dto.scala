@@ -30,3 +30,9 @@ case class NoteDto(title: String, description: String)
 object NoteDto {
   implicit val NoteDto = Json.format[NoteDto]
 }
+
+case class NoteIdDto(noteId:Int)
+
+object NoteIdDto{
+  implicit val NoteIdDto = Json.format[NoteIdDto]
+}

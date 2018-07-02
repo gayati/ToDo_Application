@@ -6,7 +6,9 @@ import com.google.inject.ImplementedBy
 
 @ImplementedBy(classOf[NoteDao])
 trait INoteDao {
-    def createNote(note:Note):Future[Int]
-    def deleteNote(title:String):Future[Int]
+  def createNote(note: Note): Future[Int]
+  def deleteNote(noteId: Int): Future[Int]
+  def updateNote(note:Note): Future[Int]
+  def getNoteBytitle(title:String):Future[Option[Note]]
 
 }

@@ -29,15 +29,21 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   }
 
   private val notes = TableQuery[NoteTable]
-  
-  override def createNote(note: Note):Future[Int] = {
-  val action = ((notes returning notes.map(_.Id)) += note)
-    db.run(action) map{Id =>Id}
-  }
-  
- override def deleteNote(title:String):Future[Int]={
-      db.run(notes.filter(_.title === title).delete)
 
+  override def createNote(note: Note): Future[Int] = {
+    val action = ((notes returning notes.map(_.Id)) += note)
+    db.run(action) map { Id => Id }
   }
-  
+
+  override def deleteNote(noteId: Int): Future[Int] = {
+    db.run(notes.filter(_.Id === noteId).delete)
+  }
+  override def getNoteBytitle(title: String): Future[Option[Note]] = {
+    db.run(notes.filter((_.title === title)).result.headOption)
+  }
+
+  override def updateNote(note:Note): Future[Int] = {
+    db.run(notes.filter(_.Id === note.noteId).update(note))
+  }
+
 }

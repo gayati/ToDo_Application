@@ -51,9 +51,10 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
   }
 
   def forgotPassword() = Action.async { implicit request: Request[AnyContent] =>
+    var host = request.host
     request.body.asJson.map { json =>
       var passwordDto: ForgotPasswordDto = json.as[ForgotPasswordDto]
-      userService.forgotUserPassword(passwordDto).map { future => Ok(future)
+      userService.forgotUserPassword(host,passwordDto).map { future => Ok(future)
       }
     }.getOrElse(Future {
       BadRequest("")
@@ -70,6 +71,7 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
       BadRequest("")
     })
   }
+  
   //val b = uservalidation.emailValidate(user.emailId)
   //        println(uservalidation.emailValidate(user.emailId))
   //        if ((uservalidation.emailValidate(user.emailId)) && (uservalidation.passwordValidate(user.password))) {
@@ -117,7 +119,6 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     })
   }
   
-//  
 }
  
 

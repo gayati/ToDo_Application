@@ -20,7 +20,6 @@ import model.NoteDto
 @Singleton
 class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, jwttoken: JwtToken, mailsender: MailSender, rediscache: RedisCache)(implicit ec: ExecutionContext) extends IUserService {
 
- 
   override def registerUser(url: String, host: String, user: RegisterDto): Future[String] = {
     //val user1 = User(0, user.username, user.emailId, user.password)
 
@@ -99,6 +98,7 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
           })
           "User successfully verified"
         })
+        rediscache.deleteToken(id.toString())
         "User successfully verified and activated"
       } else {
         "User not activated"
@@ -126,16 +126,17 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
     }
   }
 
-  override def forgotUserPassword(passwordDto: ForgotPasswordDto): Future[String] = {
+  override def forgotUserPassword(host: String, passwordDto: ForgotPasswordDto): Future[String] = {
     userDao.getUserByemail(passwordDto.emailId).map { userFuture =>
       var user = userFuture.get
       if (user.isVerified == true) {
         val token: String = jwttoken.generateToken(user.id)
         var emailTo: String = user.emailId
-        val subject: String = "Link to activate your account"
-        val message: String = "Please visit the given link to activate your account \n http://" +
-          "localhost:9000" + "/resetpassword/" + token;
+        val subject: String = "Link to reset your password"
+        val message: String = "Please visit the given link to reset your password \n http://" +
+          host + "/resetpassword/" + token;
         mailsender.sendMail(emailTo, subject, message)
+        rediscache.saveToken(user.id.toString(), token)
         "User found"
       } else {
         "User not found"
@@ -143,25 +144,28 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
     }
   }
 
-  override def resetUserPassword(token: String, passwordDto: PasswordDto): Future[String] = {
-    val id = jwttoken.getTokenId(token)
-    userDao.getUserById(id).map { userFuture =>
-      var user = userFuture.get
-      var passwordHash: String = BCrypt.hashpw(passwordDto.password, BCrypt.gensalt());
-      user = User(user.id, user.username, user.emailId, passwordHash, user.isVerified)
-      userDao.update(user).map { updateFuture =>
-        updateFuture
+  override def resetUserPassword(tokenId: String, passwordDto: PasswordDto): Future[String] = {
+    val id = jwttoken.getTokenId(tokenId)
+    rediscache.findToken(Integer.toString(id)).map { tokefuture =>
+      val token = tokefuture.get
+      if (token.equals(tokenId)) {
+        userDao.getUserById(id).map { userFuture =>
+          var user = userFuture.get
+          var passwordHash: String = BCrypt.hashpw(passwordDto.password, BCrypt.gensalt());
+          user = User(user.id, user.username, user.emailId, passwordHash, user.isVerified)
+          userDao.update(user).map { updateFuture =>
+            updateFuture
+            "Password is successfully reset"
+          }
+        }.recover {
+          case e: Exception => (e.printStackTrace())
+        }
+        rediscache.deleteToken(id.toString())
         "Password is successfully reset"
+      } else {
+        ""
       }
-    }.recover {
-      case e: Exception => (e.printStackTrace())
-    }
-    Future {
-      "Password is successfully reset"
     }
   }
-//  
-
-  
 
 }

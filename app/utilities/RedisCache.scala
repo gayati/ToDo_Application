@@ -17,5 +17,9 @@ class RedisCache @Inject() (cache: CacheAsyncApi) {
     val token = cache.get[String](Id)
     token
   }
+
+  def deleteToken(Id: String) = {
+    val token = cache.remove(Id)
+  }
 }
  
