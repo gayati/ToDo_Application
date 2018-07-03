@@ -9,6 +9,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import scala.concurrent.ExecutionContext
 import slick.jdbc.JdbcProfile
 import scala.concurrent.Future
+import model.NoteDto
 
 @Singleton
 class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends INoteDao {
@@ -19,13 +20,21 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
   private class NoteTable(tag: Tag) extends Table[Note](tag, "Notes") {
 
-    def Id = column[Int]("noteId", O.PrimaryKey, O.AutoInc)
+    def Id = column[Int]("note_id", O.PrimaryKey, O.AutoInc)
 
     def title = column[String]("note_title")
 
     def description = column[String]("note_descp")
 
-    override def * = (Id, title, description) <> ((Note.apply _).tupled, Note.unapply)
+    def isarchived = column[Boolean]("isArchived")
+
+    def ispinned = column[Boolean]("isPinned")
+
+    def istrashed = column[Boolean]("isTrashed")
+
+    def createBy = column[Int]("created_by")
+
+    override def * = (Id, title, description, isarchived, ispinned, istrashed, createBy) <> ((Note.apply _).tupled, Note.unapply)
   }
 
   private val notes = TableQuery[NoteTable]
@@ -38,11 +47,16 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   override def deleteNote(noteId: Int): Future[Int] = {
     db.run(notes.filter(_.Id === noteId).delete)
   }
+
+  override def getNoteById(id: Int): Future[Option[Note]] = {
+    db.run(notes.filter((_.Id === id)).result.headOption)
+  }
+
   override def getNoteBytitle(title: String): Future[Option[Note]] = {
     db.run(notes.filter((_.title === title)).result.headOption)
   }
 
-  override def updateNote(note:Note): Future[Int] = {
+  override def updateNote(note: Note): Future[Int] = {
     db.run(notes.filter(_.Id === note.noteId).update(note))
   }
 

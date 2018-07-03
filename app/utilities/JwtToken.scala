@@ -10,7 +10,7 @@ class JwtToken {
   def generateToken(id: Int): String = {
 
     val currentDate = new Date()
-    val expirationdate = new Date(System.currentTimeMillis() + 3600000)
+    val expirationdate = new Date(System.currentTimeMillis() + 24*60*60*1000)
 
     val Jwtbuilder = Jwts.builder().setId(Integer.toString(id))
       .setIssuedAt(currentDate)

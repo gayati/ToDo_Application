@@ -10,7 +10,7 @@ import model.NoteDto
 
 @ImplementedBy(classOf[UserService])
 trait IUserService {
-  def registerUser(url: String, host: String, user: RegisterDto): Future[String]
+  def registerUser(host: String, user: RegisterDto): Future[String]
   // def isUserExist(email: String): Future[Option[User]]
   def loginUser(user: LoginDto): Future[String]
   def activateUser(token: String): Future[String]

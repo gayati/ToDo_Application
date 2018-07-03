@@ -16,11 +16,12 @@ import model.PasswordDto
 import play.api.cache.redis._
 import utilities.RedisCache
 import model.NoteDto
+import play.api.mvc.ResponseHeader
 
 @Singleton
 class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, jwttoken: JwtToken, mailsender: MailSender, rediscache: RedisCache)(implicit ec: ExecutionContext) extends IUserService {
 
-  override def registerUser(url: String, host: String, user: RegisterDto): Future[String] = {
+  override def registerUser(host: String, user: RegisterDto): Future[String] = {
     //val user1 = User(0, user.username, user.emailId, user.password)
 
     if (uservalidation.emailValidate(user.emailId) &&
@@ -113,9 +114,10 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
         if (!(loginFuture.equals(None))) {
           tempUser = loginFuture.get
           if ((BCrypt.checkpw(loginDto.password, tempUser.password)) && tempUser.isVerified == true) {
-            "Login Success"
+            var token = jwttoken.generateToken(tempUser.id)
+            token
           } else {
-            "Login Failed"
+            ""
           }
         } else {
           "User is not registered,Please registered first"
@@ -137,9 +139,9 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
           host + "/resetpassword/" + token;
         mailsender.sendMail(emailTo, subject, message)
         rediscache.saveToken(user.id.toString(), token)
-        "User found"
+        "User is present"
       } else {
-        "User not found"
+        "User not present"
       }
     }
   }

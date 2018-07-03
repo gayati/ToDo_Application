@@ -18,7 +18,6 @@ import model.LoginDto
 import model.RegisterDto
 import model.ForgotPasswordDto
 import model.PasswordDto
-import model.NoteDto
 
 @Singleton
 class UserController @Inject() (userService: IUserService, uservalidation: UserValidation, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -26,11 +25,9 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
   def register() = Action.async { implicit request: Request[AnyContent] =>
     var host: String = request.host
     println("host" + host)
-    var url: String = request.uri
-    println("url" + url)
     request.body.asJson.map { json =>
       var user: RegisterDto = json.as[RegisterDto]
-      userService.registerUser(url, host, user).map {
+      userService.registerUser( host, user).map {
         future => Ok(future)
       }.recover {
         case exception: Exception => {
@@ -40,7 +37,6 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     }.getOrElse(Future {
       BadRequest("Registration Failed..!!")
     })
-
   }
 
   def isActivated(token: String) = Action.async { implicit request: Request[AnyContent] =>
@@ -54,13 +50,14 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     var host = request.host
     request.body.asJson.map { json =>
       var passwordDto: ForgotPasswordDto = json.as[ForgotPasswordDto]
-      userService.forgotUserPassword(host,passwordDto).map { future => Ok(future)
+      userService.forgotUserPassword(host,passwordDto) map { future => Ok(future)
       }
     }.getOrElse(Future {
       BadRequest("")
     })
   }
 
+  
   def resetPassword(token: String) = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
       var passwordDto: PasswordDto = json.as[PasswordDto]
@@ -111,8 +108,9 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
   def login() = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
       var userLogin: LoginDto = json.as[LoginDto]
-      userService.loginUser(userLogin).map {
-        loginFuture => Ok(loginFuture)
+      userService.loginUser(userLogin).map {loginFuture =>
+        var token = loginFuture
+        Ok(token).withHeaders("Headers" -> token)  
       }
     }.getOrElse(Future {
       BadRequest("User has made a bad request")

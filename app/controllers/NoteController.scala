@@ -9,7 +9,6 @@ import play.api.mvc.AbstractController
 import model.NoteDto
 import service.INoteService
 import scala.concurrent.Future
-import model.NoteIdDto
 import play.api.libs.json.Json
 import model.Note
 
@@ -17,9 +16,10 @@ import model.Note
 class NoteController @Inject() (noteService: INoteService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def createNote() = Action.async { implicit request: Request[AnyContent] =>
+    var token = request.headers.get("Headers").get
     request.body.asJson.map { json =>
-      var note: NoteDto = json.as[NoteDto]
-      noteService.createNote(note) map { createnoteFuture =>
+      var note: Note = json.as[Note]
+      noteService.createNote(note, token) map { createnoteFuture =>
         Ok(createnoteFuture)
       }
     }.getOrElse(Future {
@@ -27,21 +27,23 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     })
   }
 
-  def deleteNote() = Action.async { implicit request: Request[AnyContent] =>
-  request.body.asJson.map { json =>
-      var note: NoteDto = json.as[NoteDto]
-      noteService.deleteNote(note) map { deleteFuture =>
-        Ok(deleteFuture)
+  def deleteNote(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
+    var token = request.headers.get("Headers").get
+    noteService.deleteNote(noteId,token) map { deleteFuture =>
+      Ok(deleteFuture)
+    }
+  }
+
+  def updateNote(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
+    request.body.asJson.map { json =>
+      var note: Note = json.as[Note]
+      noteService.updateNote(note, noteId) map { updateFuture =>
+        Ok(updateFuture)
       }
     }.getOrElse(Future {
-      BadRequest("")
+      BadRequest("User has made a bad request")
     })
   }
 
-//  def updateNote() = Action.async { implicit request: Request[AnyContent] =>
-//    request.body.asJson.map { json =>
-//      var note: NoteIdDto = json.as[NoteIdDto]
-//
-//    }
-//  }
+  //def getNote() = Action.async(block)
 }
