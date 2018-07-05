@@ -11,5 +11,5 @@ trait INoteDao {
   def updateNote(note: Note): Future[Int]
   def getNoteBytitle(title: String): Future[Option[Note]]
   def getNoteById(id: Int): Future[Option[Note]]
-  def getNotes(noteId:Int): Future[Seq[Note]]
+  def getNotes(userId:Int): Future[Seq[Note]]
 }

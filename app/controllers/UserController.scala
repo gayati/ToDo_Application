@@ -27,11 +27,12 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     println("host" + host)
     request.body.asJson.map { json =>
       var user: RegisterDto = json.as[RegisterDto]
-      userService.registerUser( host, user).map {
+      userService.registerUser(host, user).map {
         future => Ok(future)
       }.recover {
         case exception: Exception => {
-          Conflict("Registration failed..!!")
+          exception.printStackTrace()
+          Conflict("Registration failed..........")
         }
       }
     }.getOrElse(Future {
@@ -43,32 +44,61 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     println("token in controller: " + token)
     userService.activateUser(token).map({
       future => Ok(future)
-    })
+    }).recover {
+      case exception: Exception => {
+        exception.printStackTrace()
+        Conflict("Activation failed..........")
+      }
+    }
   }
 
   def forgotPassword() = Action.async { implicit request: Request[AnyContent] =>
     var host = request.host
     request.body.asJson.map { json =>
       var passwordDto: ForgotPasswordDto = json.as[ForgotPasswordDto]
-      userService.forgotUserPassword(host,passwordDto) map { future => Ok(future)
-      }
-    }.getOrElse(Future {
-      BadRequest("")
-    })
-  }
-
-  
-  def resetPassword(token: String) = Action.async { implicit request: Request[AnyContent] =>
-    request.body.asJson.map { json =>
-      var passwordDto: PasswordDto = json.as[PasswordDto]
-      userService.resetUserPassword(token, passwordDto).map { future =>
+      userService.forgotUserPassword(host, passwordDto) map { future =>
         Ok(future)
       }
     }.getOrElse(Future {
       BadRequest("")
     })
   }
-  
+
+  def resetPassword(token: String) = Action.async { implicit request: Request[AnyContent] =>
+    request.body.asJson.map { json =>
+      var passwordDto: PasswordDto = json.as[PasswordDto]
+      userService.resetUserPassword(token, passwordDto).map { future =>
+        Ok(future)
+      }.recover {
+        case exception: Exception => {
+          exception.printStackTrace()
+          Conflict("Exception Ocurred..........")
+        }
+      }
+    }.getOrElse(Future {
+      BadRequest("")
+    })
+  }
+
+  def login() = Action.async { implicit request: Request[AnyContent] =>
+    request.body.asJson.map { json =>
+      var userLogin: LoginDto = json.as[LoginDto]
+      userService.loginUser(userLogin).map { loginFuture =>
+        var token = loginFuture
+        Ok(token).withHeaders("Headers" -> token)
+      }.recover {
+        case exception: Exception => {
+          exception.printStackTrace()
+          Conflict("Exception Ocurred..........")
+        }
+      }
+    }.getOrElse(Future {
+      BadRequest("User has made a bad request")
+    })
+  }
+
+}
+ 
   //val b = uservalidation.emailValidate(user.emailId)
   //        println(uservalidation.emailValidate(user.emailId))
   //        if ((uservalidation.emailValidate(user.emailId)) && (uservalidation.passwordValidate(user.password))) {
@@ -104,19 +134,4 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
   //    }
   //
   //  }
-
-  def login() = Action.async { implicit request: Request[AnyContent] =>
-    request.body.asJson.map { json =>
-      var userLogin: LoginDto = json.as[LoginDto]
-      userService.loginUser(userLogin).map {loginFuture =>
-        var token = loginFuture
-        Ok(token).withHeaders("Headers" -> token)  
-      }
-    }.getOrElse(Future {
-      BadRequest("User has made a bad request")
-    })
-  }
-  
-}
- 
 

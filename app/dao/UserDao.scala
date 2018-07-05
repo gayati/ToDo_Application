@@ -18,11 +18,15 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   import dbConfig._
   import profile.api._
 
-  private class UserTable(tag: Tag) extends Table[User](tag, "User") {
+  private class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-    def userName = column[String]("user_name")
+    def firstName = column[String]("first_name")
+
+    def lastName = column[String]("last_name")
+
+    def mobileNumber = column[String]("mobile_number")
 
     def email = column[String]("email")
 
@@ -30,13 +34,11 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
     def isVerified = column[Boolean]("isverified")
 
-    override def * = (id, userName, email, passWord, isVerified) <> ((User.apply _).tupled, User.unapply)
+    override def * = (id, firstName, lastName, mobileNumber, email, passWord, isVerified) <> ((User.apply _).tupled, User.unapply)
 
   }
 
   private val users = TableQuery[UserTable]
-  
-  
 
   override def register(user: User): Future[Int] = {
     val action = ((users returning users.map(_.id)) += user)
@@ -67,18 +69,9 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   override def getUserByemail(emailid: String): Future[Option[User]] = {
     db.run(users.filter(_.email === emailid).result.headOption)
   }
-  
-//  override def createNote(note:Note):Future[String]={
-//    
-//  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+  //  override def createNote(note:Note):Future[String]={
+  //
+  //  }
+
 }

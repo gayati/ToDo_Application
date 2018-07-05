@@ -12,20 +12,27 @@ import dao.UserDao
 import dao.IUserDao
 import utilities.JwtToken
 import utilities.RedisCache
+import java.sql.Date
 
 @Singleton
 class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
 
-  override def createNote(note: Note, token: String): Future[String] = {
+  override def createNote(note: NoteDto, token: String): Future[String] = {
     val id = jwtToken.getTokenId(token)
     userDao.getUserById(id) map { userFuture =>
-      val user = userFuture.get
-      val note1 = Note(0, note.title, note.description, note.isArchived, note.isPinned, false, user.id)
-      noteDao.createNote(note1) map { createNoteFuture =>
-        createNoteFuture
+      if (!(userFuture.equals(None))) {
+        val user = userFuture.get
+        val date: Date = new Date(System.currentTimeMillis())
+        val note1 = Note(0, note.title, note.description, date, date, note.color, note.isArchived,
+          note.isPinned, note.isTrashed, user.id)
+        noteDao.createNote(note1) map { createNoteFuture =>
+          createNoteFuture
+          "Note Created successfully"
+        }
         "Note Created successfully"
+      } else {
+        "User not found"
       }
-      "Note Created successfully"
     }
   }
 
@@ -34,32 +41,53 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
     noteDao.getNoteById(noteId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         val note = noteFuture.get
-        val userId = note.createdBy
-        if (uId == userId) {
+        // val userId = note.createdBy
+        if (uId == note.createdBy) {
           noteDao.deleteNote(noteId) map { deletenoteFuture =>
             deletenoteFuture
             "Note Successfully deleted..."
-          }   
+          }
         } else {
-          ""
+          "Acess Denied......"
         }
-         "Note found"
+        "Note found"
       } else {
         "note note found"
       }
     }
-
   }
 
-  override def updateNote(note1: Note, noteId: Int): Future[String] = {
+  override def updateNote(noteId: Int, token: String,noteDto:NoteDto): Future[String] = {
+    val uId = jwtToken.getTokenId(token)
     noteDao.getNoteById(noteId) map { noteFuture =>
-      var note = noteFuture.get
-      note = Note(note.noteId, note1.title, note1.description, false, false, false, 2)
-      noteDao.updateNote(note) map { updatenoteFuture =>
-        updatenoteFuture
-        "Note Successfully updated..."
-      }
-      "Note Successfully updated..."
+      if (!(noteFuture.equals(None))) {
+        var note = noteFuture.get
+        //if (uId == note.createdBy) {
+          var date: Date = new Date(System.currentTimeMillis())
+         // note.updatedDate = date
+          var date1 = note.updatedDate
+          date1 = date
+          note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
+            noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy)
+          noteDao.updateNote(note) map { updatenoteFuture =>
+            updatenoteFuture
+            "Note Successfully updated..."
+          }
+          "Note Successfully updated..."
+      //  } else { "Acesss denied........." }
+      } else { "Note not found" }
     }
   }
+
+  override def getNotes(token: String): Future[Seq[Note]] = {
+    val userId = jwtToken.getTokenId(token)
+    noteDao.getNotes(userId) map { noteFuture =>
+      if (!(noteFuture.equals(None))) {
+        noteFuture
+      } else {
+        noteFuture
+      }
+    }
+  }
+
 }

@@ -10,6 +10,7 @@ import scala.concurrent.ExecutionContext
 import slick.jdbc.JdbcProfile
 import scala.concurrent.Future
 import model.NoteDto
+import java.sql.Date
 
 @Singleton
 class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends INoteDao {
@@ -18,13 +19,19 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   import dbConfig._
   import profile.api._
 
-  private class NoteTable(tag: Tag) extends Table[Note](tag, "Notes") {
+  private class NoteTable(tag: Tag) extends Table[Note](tag, "Note") {
 
     def Id = column[Int]("note_id", O.PrimaryKey, O.AutoInc)
 
     def title = column[String]("note_title")
 
     def description = column[String]("note_descp")
+    
+    def createddate = column[Date]("created_date")
+    
+    def updatedDate = column[Date]("updated_date")
+    
+    def color = column[String]("color")
 
     def isarchived = column[Boolean]("isArchived")
 
@@ -32,9 +39,9 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
     def istrashed = column[Boolean]("isTrashed")
 
-    def createBy = column[Int]("created_by")
+    def createdBy = column[Int]("created_by")
 
-    override def * = (Id, title, description, isarchived, ispinned, istrashed, createBy) <> ((Note.apply _).tupled, Note.unapply)
+    override def * = (Id, title, description, createddate,updatedDate,color,isarchived, ispinned, istrashed, createdBy) <> ((Note.apply _).tupled, Note.unapply)
   }
 
   private val notes = TableQuery[NoteTable]
@@ -58,6 +65,10 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
   override def updateNote(note: Note): Future[Int] = {
     db.run(notes.filter(_.Id === note.noteId).update(note))
+  }
+
+  override def getNotes(userId: Int): Future[Seq[Note]] = {
+    db.run(notes.filter((_.createdBy === userId)).result)
   }
 
 }

@@ -18,7 +18,7 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
   def createNote() = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
     request.body.asJson.map { json =>
-      var note: Note = json.as[Note]
+      var note: NoteDto = json.as[NoteDto]
       noteService.createNote(note, token) map { createnoteFuture =>
         Ok(createnoteFuture)
       }
@@ -29,15 +29,16 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
 
   def deleteNote(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
-    noteService.deleteNote(noteId,token) map { deleteFuture =>
+    noteService.deleteNote(noteId, token) map { deleteFuture =>
       Ok(deleteFuture)
     }
   }
 
   def updateNote(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
+    var token = request.headers.get("Headers").get
     request.body.asJson.map { json =>
-      var note: Note = json.as[Note]
-      noteService.updateNote(note, noteId) map { updateFuture =>
+      var note: NoteDto = json.as[NoteDto]
+      noteService.updateNote(noteId, token, note) map { updateFuture =>
         Ok(updateFuture)
       }
     }.getOrElse(Future {
@@ -45,5 +46,13 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     })
   }
 
-  //def getNote() = Action.async(block)
+  def getNotes() = Action.async { implicit request: Request[AnyContent] =>
+    var token = request.headers.get("Headers").get
+    noteService.getNotes(token) map { notes =>
+      notes
+      println(notes)
+      Ok(Json.toJson(notes))
+    }
+
+  }
 }

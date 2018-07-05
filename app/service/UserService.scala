@@ -21,13 +21,13 @@ import play.api.mvc.ResponseHeader
 @Singleton
 class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, jwttoken: JwtToken, mailsender: MailSender, rediscache: RedisCache)(implicit ec: ExecutionContext) extends IUserService {
 
-  override def registerUser(host: String, user: RegisterDto): Future[String] = {
+  override def registerUser(host: String, registerDto: RegisterDto): Future[String] = {
     //val user1 = User(0, user.username, user.emailId, user.password)
 
-    if (uservalidation.emailValidate(user.emailId) &&
-      uservalidation.passwordValidate(user.password)) {
-      var passwordHash: String = BCrypt.hashpw(user.password, BCrypt.gensalt());
-      var user1 = User(0, user.username, user.emailId, passwordHash, false)
+    if (uservalidation.emailValidate(registerDto.emailId) &&
+      uservalidation.passwordValidate(registerDto.password)) {
+      var passwordHash: String = BCrypt.hashpw(registerDto.password, BCrypt.gensalt());
+      var user1 = User(0, registerDto.firstName,registerDto.lastName,registerDto.mobileNumber, registerDto.emailId, passwordHash,false)
       println(user1.toString() + "hassh")
       userDao.isExist(user1.emailId) map {
         userFuture =>
@@ -90,7 +90,9 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
       if (token.equals(tokenId)) {
         userDao.getUserById(id).map({ userFuture =>
           var user = userFuture.get
-          user = User(user.id, user.username, user.emailId, user.password, true)
+          var verified = user.isVerified
+          verified = true
+          user = User(user.id, user.firstName,user.lastName,user.mobileNumber, user.emailId, user.password, verified)
           println(user.toString())
           userDao.update(user).map({ updateFuture =>
             updateFuture
@@ -108,7 +110,7 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
   }
 
   override def loginUser(loginDto: LoginDto): Future[String] = {
-    var tempUser: User = User(0, "", loginDto.emailId, "", false)
+    var tempUser: User = User(0, "", "","",loginDto.emailId, "", false)
     if (uservalidation.emailValidate(tempUser.emailId)) {
       userDao.login(tempUser).map { loginFuture =>
         if (!(loginFuture.equals(None))) {
@@ -154,13 +156,11 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
         userDao.getUserById(id).map { userFuture =>
           var user = userFuture.get
           var passwordHash: String = BCrypt.hashpw(passwordDto.password, BCrypt.gensalt());
-          user = User(user.id, user.username, user.emailId, passwordHash, user.isVerified)
+          user = User(user.id, user.firstName,user.lastName,user.mobileNumber, user.emailId, passwordHash, user.isVerified)
           userDao.update(user).map { updateFuture =>
             updateFuture
             "Password is successfully reset"
           }
-        }.recover {
-          case e: Exception => (e.printStackTrace())
         }
         rediscache.deleteToken(id.toString())
         "Password is successfully reset"

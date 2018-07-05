@@ -13,8 +13,8 @@ POST   /forgotpassword         controllers.UserController.forgotPassword()
 POST   /resetpassword/:token   controllers.UserController.resetPassword(token)
 POST   /createNote             controllers.NoteController.createNote()
 POST   /deleteNote/:id         controllers.NoteController.deleteNote(id:Int)
-#POST   /updateNote/:noteId     controllers.NoteController.updateNote(noteId: Int)
-
+POST   /updateNote/:noteId     controllers.NoteController.updateNote(noteId: Int)
+POST   /getNotes               controllers.NoteController.getNotes()
 
 
 
