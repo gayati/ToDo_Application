@@ -9,23 +9,27 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class MailSender @Inject() (implicit executionContext: ExecutionContext) {
+class MailSender @Inject() (configuration: play.api.Configuration)(implicit executionContext: ExecutionContext) {
   
-  def sendMail(to: String, subject: String, message: String) = {
+  def sendMail(to: String, subject: String, message: String): Future[Boolean] = {
+    Future{
     try {
       val simpleEmail = new SimpleEmail()
-      simpleEmail.setFrom("playscala2018@gmail.com")
+      simpleEmail.setFrom(configuration.underlying.getString("smtp.user"))
       simpleEmail.setMsg(message)
       simpleEmail.setSubject(subject)
-      simpleEmail.setAuthenticator(new DefaultAuthenticator("playscala2018@gmail.com", "scala@2018"));
-      simpleEmail.setHostName("smtp.gmail.com");
-      simpleEmail.setSmtpPort(587);
-      simpleEmail.setSSLOnConnect(true);
+      simpleEmail.setAuthenticator(new DefaultAuthenticator(configuration.underlying.getString("smtp.user"), configuration.underlying.getString("smtp.password")));
+      simpleEmail.setHostName(configuration.underlying.getString("smtp.host"))
+      simpleEmail.setSmtpPort(configuration.underlying.getInt("smtp.port"))
+      simpleEmail.setSSLOnConnect(configuration.underlying.getBoolean("smtp.starttls"))
       simpleEmail.addTo(to)
       simpleEmail.send()
       print("Email is succesfully sent")
+      true
     } catch {
       case e: Exception => e.printStackTrace()
+      false
     }
+  }
   }
 }

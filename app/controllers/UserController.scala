@@ -18,32 +18,84 @@ import model.LoginDto
 import model.RegisterDto
 import model.ForgotPasswordDto
 import model.PasswordDto
+import exceptions.MyErrors
+import java.nio.charset.StandardCharsets.UTF_8
+import play.api.libs._
+import scala.concurrent.duration._
+import scala.concurrent.Await
+import utilities.JwtToken
 
 @Singleton
-class UserController @Inject() (userService: IUserService, uservalidation: UserValidation, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+class UserController @Inject() (userService: IUserService, uservalidation: UserValidation, jwttoken: JwtToken, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+
+  /* {
+    override def toResult(e: Exception) = super.toResult(e)
+
+  }
+*/
+
+
+
+  //  def preflight(all: String) = Action {
+  //    Ok("").withHeaders("Access-Control-Allow-Origin" -> "*",
+  //      "Allow" -> "*",
+  //      "Access-Control-Allow-Methods" -> "POST, GET, PUT, DELETE, OPTIONS",
+  //      "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent");
+  //  }
 
   def register() = Action.async { implicit request: Request[AnyContent] =>
+
     var host: String = request.host
     println("host" + host)
+    var url: String = request.headers.get("origin").get
+    println(url + "url")
     request.body.asJson.map { json =>
       var user: RegisterDto = json.as[RegisterDto]
-      userService.registerUser(host, user).map {
-        future => Ok(future)
-      }.recover {
-        case exception: Exception => {
-          exception.printStackTrace()
-          Conflict("Registration failed..........")
+      userService.registerUser(host, url, user).map { userFuture =>
+        userFuture match {
+          case "NotExist" => Ok("User registered successfully")
+          case "Exist" =>
+            //            val res = errors.toResult(errors.UserAlreadyExists(user.emailId))
+            //            val body = res.header.status.toInt
+            // val body = new String(Await.result(res.body.run(Iteratee.consume()), 5 seconds), UTF_8)
+            Conflict("User Alredy Exist")
         }
+      }.recover {
+        case error =>
+          //errors.toResult(errors.DefaultError())
+          Conflict("Exception............")
       }
     }.getOrElse(Future {
       BadRequest("Registration Failed..!!")
     })
   }
 
+  //    def register() = Action.async { implicit request: Request[AnyContent] =>
+  //      var host: String = request.host
+  //      println("host" + host)
+  //      request.body.asJson.map { json =>
+  //        var user: RegisterDto = json.as[RegisterDto]
+  //        userService.registerUser(host, user).map {
+  //          future => Ok(future)
+  //        }.recover {
+  //          case exception: Exception => {
+  //            exception.printStackTrace()
+  //            Conflict("Registration failed..........")
+  //          }
+  //        }
+  //      }.getOrElse(Future {
+  //        BadRequest("Registration Failed..!!")
+  //      })
+  //    }
+
   def isActivated(token: String) = Action.async { implicit request: Request[AnyContent] =>
     println("token in controller: " + token)
     userService.activateUser(token).map({
-      future => Ok(future)
+      future =>
+        future match {
+          case "Activated"    => Ok("Activation Successs.....")
+          case "Notactivated" => Conflict("Failed......")
+        }
     }).recover {
       case exception: Exception => {
         exception.printStackTrace()
@@ -52,23 +104,32 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     }
   }
 
+  
   def forgotPassword() = Action.async { implicit request: Request[AnyContent] =>
     var host = request.host
+    var url: String = request.headers.get("origin").get
     request.body.asJson.map { json =>
       var passwordDto: ForgotPasswordDto = json.as[ForgotPasswordDto]
-      userService.forgotUserPassword(host, passwordDto) map { future =>
-        Ok(future)
+      userService.forgotUserPassword(host, url, passwordDto) map { future =>
+        future match {
+          case "UserPresent"    => Ok("User Present");
+          case "UserNotpresent" => Conflict("User Not Present")
+        }
       }
     }.getOrElse(Future {
       BadRequest("")
     })
   }
 
+  
   def resetPassword(token: String) = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
       var passwordDto: PasswordDto = json.as[PasswordDto]
       userService.resetUserPassword(token, passwordDto).map { future =>
-        Ok(future)
+        future match {
+          case "Reset" => Ok("Password reset success.........");
+          case "Not"   => Conflict("Password reset fail.....")
+        }
       }.recover {
         case exception: Exception => {
           exception.printStackTrace()
@@ -80,12 +141,17 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     })
   }
 
+  
   def login() = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
       var userLogin: LoginDto = json.as[LoginDto]
       userService.loginUser(userLogin).map { loginFuture =>
-        var token = loginFuture
-        Ok(token).withHeaders("Headers" -> token)
+        loginFuture match {
+          case Some(user) =>
+            var token = jwttoken.generateToken(user.id)
+            Ok(token).withHeaders("Headers" -> token)
+          case None => Conflict("User not registered.....")
+        }
       }.recover {
         case exception: Exception => {
           exception.printStackTrace()

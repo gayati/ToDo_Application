@@ -30,16 +30,24 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
   def deleteNote(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
     noteService.deleteNote(noteId, token) map { deleteFuture =>
-      Ok(deleteFuture)
+   //   Ok(deleteFuture)
+      deleteFuture match {
+        case "DeleteSuccess"    => Ok("Delete success..........")
+        case "DeleteNotSuccess" => Conflict("Delete failure.........")
+      }
     }
   }
 
   def updateNote(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
+    println("Update nOte " + token)
+
     request.body.asJson.map { json =>
       var note: NoteDto = json.as[NoteDto]
       noteService.updateNote(noteId, token, note) map { updateFuture =>
-        Ok(updateFuture)
+        updateFuture match {
+          case success => Ok("Update success............")
+        }
       }
     }.getOrElse(Future {
       BadRequest("User has made a bad request")

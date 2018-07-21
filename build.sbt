@@ -25,9 +25,11 @@ libraryDependencies += "org.mindrot" % "jbcrypt" % "0.3m"
 libraryDependencies += "org.apache.commons" % "commons-email" % "1.3.1"
 
 libraryDependencies += "org.apache.activemq" % "activemq-core" % "5.7.0"
-// enable Play cache API (based on your Play version)
+
 libraryDependencies += play.sbt.PlayImport.cacheApi
-// include play-redis library
+
 libraryDependencies += "com.github.karelcemus" %% "play-redis" % "2.1.2"
+
+
 
 

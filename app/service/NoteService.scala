@@ -45,36 +45,38 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
         if (uId == note.createdBy) {
           noteDao.deleteNote(noteId) map { deletenoteFuture =>
             deletenoteFuture
-            "Note Successfully deleted..."
+           "DeleteSuccess"
           }
         } else {
-          "Acess Denied......"
+         "DeleteNotSuccess"
         }
-        "Note found"
+       "DeleteSuccess"
       } else {
-        "note note found"
+        "DeleteNotSuccess"
       }
     }
   }
 
-  override def updateNote(noteId: Int, token: String,noteDto:NoteDto): Future[String] = {
+  override def updateNote(noteId: Int, token: String, noteDto: NoteDto): Future[String] = {
     val uId = jwtToken.getTokenId(token)
     noteDao.getNoteById(noteId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         var note = noteFuture.get
-        //if (uId == note.createdBy) {
-          var date: Date = new Date(System.currentTimeMillis())
-         // note.updatedDate = date
-          var date1 = note.updatedDate
-          date1 = date
-          note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
-            noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy)
-          noteDao.updateNote(note) map { updatenoteFuture =>
-            updatenoteFuture
-            "Note Successfully updated..."
-          }
-          "Note Successfully updated..."
-      //  } else { "Acesss denied........." }
+        if (uId == note.createdBy) {
+        var date: Date = new Date(System.currentTimeMillis())
+        // note.updatedDate = date
+        var date1 = note.updatedDate
+        date1 = date
+        note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
+          noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy)
+        var result: String = ""
+        noteDao.updateNote(note) map { updatenoteFuture =>
+          "success"
+          
+        }
+                 "success"
+
+         } else { "Acesss denied........." }
       } else { "Note not found" }
     }
   }
@@ -85,7 +87,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
       if (!(noteFuture.equals(None))) {
         noteFuture
       } else {
-        noteFuture
+       null
       }
     }
   }

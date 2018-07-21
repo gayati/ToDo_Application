@@ -17,46 +17,77 @@ import play.api.cache.redis._
 import utilities.RedisCache
 import model.NoteDto
 import play.api.mvc.ResponseHeader
+//import exceptions.MyErrors
 
 @Singleton
 class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, jwttoken: JwtToken, mailsender: MailSender, rediscache: RedisCache)(implicit ec: ExecutionContext) extends IUserService {
 
-  override def registerUser(host: String, registerDto: RegisterDto): Future[String] = {
-    //val user1 = User(0, user.username, user.emailId, user.password)
+  //  override def registerUser(host: String, registerDto: RegisterDto): Future[String] = {
+  //    if (uservalidation.emailValidate(registerDto.emailId) &&
+  //      uservalidation.passwordValidate(registerDto.password)) {
+  //      var passwordHash: String = BCrypt.hashpw(registerDto.password, BCrypt.gensalt());
+  //      var user1 = User(0, registerDto.firstName,registerDto.lastName,registerDto.mobileNumber, registerDto.emailId, passwordHash,false)
+  //      println(user1.toString() + "hassh")
+  //      userDao.isExist(user1.emailId) map {
+  //        userFuture =>
+  //          println(userFuture + "UserFuture")
+  //          userFuture match {
+  //            case Some(user1) => {
+  //              "User already exists"
+  //            }
+  //            case None => {
+  //              print(userFuture.toString() + "return")
+  //              userDao.register(user1) map {
+  //                userIdFuture =>
+  //                  var id = userIdFuture
+  //                  val token = jwttoken.generateToken(id)
+  //                  println(token)
+  //                  var emailTo: String = user1.emailId
+  //                  val subject: String = "Link to activate your account"
+  //                  val message: String = "Please visit the given link to activate your account \n http://" + host + "/activateuser/" + token;
+  //                  mailsender.sendMail(emailTo, subject, message)
+  //                  rediscache.saveToken(Integer.toString(id), token)
+  //              }
+  //              "User registration successful"
+  //            }
+  //          }
+  //      }
+  //    } else {
+  //      Future { "Please enter valid fields" }
+  //    }
+  //  }
 
-    if (uservalidation.emailValidate(registerDto.emailId) &&
-      uservalidation.passwordValidate(registerDto.password)) {
-      var passwordHash: String = BCrypt.hashpw(registerDto.password, BCrypt.gensalt());
-      var user1 = User(0, registerDto.firstName,registerDto.lastName,registerDto.mobileNumber, registerDto.emailId, passwordHash,false)
-      println(user1.toString() + "hassh")
-      userDao.isExist(user1.emailId) map {
-        userFuture =>
-          println(userFuture + "UserFuture")
-          userFuture match {
-            case Some(user1) => {
-              "User already exists"
-            }
-            case None => {
-              print(userFuture.toString() + "return")
-              userDao.register(user1) map {
-                userIdFuture =>
-                  var id = userIdFuture
-                  val token = jwttoken.generateToken(id)
-                  println(token)
-                  var emailTo: String = user1.emailId
-                  val subject: String = "Link to activate your account"
-                  val message: String = "Please visit the given link to activate your account \n http://" + host + "/activateuser/" + token;
-                  mailsender.sendMail(emailTo, subject, message)
-                  rediscache.saveToken(Integer.toString(id), token)
-              }
-              "User registration successful"
-            }
+  override def registerUser(host: String, url: String, registerDto: RegisterDto): Future[String] = {
+
+    var passwordHash: String = BCrypt.hashpw(registerDto.password, BCrypt.gensalt());
+    var user1 = User(0, registerDto.firstName, registerDto.lastName, registerDto.mobileNumber, registerDto.emailId, passwordHash, false)
+    println(user1.toString() + "hassh")
+    userDao.isExist(user1.emailId) map {
+      userFuture =>
+        userFuture match {
+          case Some(user1) => {
+            "Exist"
           }
-      }
-    } else {
-      Future { "Please enter valid fields" }
+          case None => {
+            print(userFuture.toString() + "return")
+            userDao.register(user1) map {
+              userIdFuture =>
+                var id = userIdFuture
+                val token = jwttoken.generateToken(id)
+                println(token)
+                var emailTo: String = user1.emailId
+                val subject: String = "Link to activate your account"
+                val message: String = "Please visit the given link to activate your account \n" + url + "#!/activateUser?token=" + token;
+                // val message: String = "Please visit the given link to activate your account \n http://" + host + "/activateuser/" + token;
+                mailsender.sendMail(emailTo, subject, message)
+                rediscache.saveToken(Integer.toString(id), token)
+            }
+            "NotExist"
+          }
+        }
     }
   }
+
   //    println(user.toString() + "service hash")
   //    if ((validation.emailValidate(user.emailId))) {
   //      userDao.register(user).map({
@@ -92,58 +123,63 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
           var user = userFuture.get
           var verified = user.isVerified
           verified = true
-          user = User(user.id, user.firstName,user.lastName,user.mobileNumber, user.emailId, user.password, verified)
+          user = User(user.id, user.firstName, user.lastName, user.mobileNumber, user.emailId, user.password, verified)
           println(user.toString())
           userDao.update(user).map({ updateFuture =>
             updateFuture
             println(updateFuture)
-            "User sucessfully verified"
+            "Activated"
           })
-          "User successfully verified"
+          "Activated"
         })
         rediscache.deleteToken(id.toString())
-        "User successfully verified and activated"
+        "Activated"
       } else {
-        "User not activated"
+        "Notactivated"
       }
     }
   }
 
-  override def loginUser(loginDto: LoginDto): Future[String] = {
-    var tempUser: User = User(0, "", "","",loginDto.emailId, "", false)
-    if (uservalidation.emailValidate(tempUser.emailId)) {
-      userDao.login(tempUser).map { loginFuture =>
-        if (!(loginFuture.equals(None))) {
-          tempUser = loginFuture.get
-          if ((BCrypt.checkpw(loginDto.password, tempUser.password)) && tempUser.isVerified == true) {
-            var token = jwttoken.generateToken(tempUser.id)
-            token
-          } else {
-            ""
-          }
+  override def loginUser(loginDto: LoginDto): Future[Option[User]] = {
+    var tempUser: User = User(0, "", "", "", loginDto.emailId, "", false)
+    //    if (uservalidation.emailValidate(tempUser.emailId)) {
+    userDao.login(tempUser).map { loginFuture =>
+      if (!(loginFuture.equals(None))) {
+        tempUser = loginFuture.get
+        if (tempUser.isVerified == true &&
+          (BCrypt.checkpw(loginDto.password, tempUser.password))) {
+          var token = jwttoken.generateToken(tempUser.id)
+          Some(tempUser)
         } else {
-          "User is not registered,Please registered first"
+          None
         }
+      } else {
+        None
       }
-    } else {
-      Future { "Please enter valid fields" }
     }
+    //    } else {
+    //      Future { "Please enter valid fields" }
+    //    }
   }
 
-  override def forgotUserPassword(host: String, passwordDto: ForgotPasswordDto): Future[String] = {
+  override def forgotUserPassword(host: String, url: String, passwordDto: ForgotPasswordDto): Future[String] = {
     userDao.getUserByemail(passwordDto.emailId).map { userFuture =>
-      var user = userFuture.get
-      if (user.isVerified == true) {
-        val token: String = jwttoken.generateToken(user.id)
-        var emailTo: String = user.emailId
-        val subject: String = "Link to reset your password"
-        val message: String = "Please visit the given link to reset your password \n http://" +
-          host + "/resetpassword/" + token;
-        mailsender.sendMail(emailTo, subject, message)
-        rediscache.saveToken(user.id.toString(), token)
-        "User is present"
+      if (!(userFuture.equals(None))) {
+        var user = userFuture.get
+        if (user.isVerified == true) {
+          val token: String = jwttoken.generateToken(user.id)
+          var emailTo: String = user.emailId
+          val subject: String = "Link to reset your password"
+          val message: String = "Please visit the given link to reset your password  \n" + url + "#!/resetPassword?token=" + token;
+          mailsender.sendMail(emailTo, subject, message)
+          rediscache.saveToken(user.id.toString(), token)
+          "UserPresent"
+        } else {
+          "UserNotpresent"
+        }
+        "UserPresent"
       } else {
-        "User not present"
+        "UserNotpresent"
       }
     }
   }
@@ -156,16 +192,16 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
         userDao.getUserById(id).map { userFuture =>
           var user = userFuture.get
           var passwordHash: String = BCrypt.hashpw(passwordDto.password, BCrypt.gensalt());
-          user = User(user.id, user.firstName,user.lastName,user.mobileNumber, user.emailId, passwordHash, user.isVerified)
+          user = User(user.id, user.firstName, user.lastName, user.mobileNumber, user.emailId, passwordHash, user.isVerified)
           userDao.update(user).map { updateFuture =>
             updateFuture
-            "Password is successfully reset"
+            "Reset"
           }
         }
         rediscache.deleteToken(id.toString())
-        "Password is successfully reset"
+        "Reset"
       } else {
-        ""
+        "Not"
       }
     }
   }
