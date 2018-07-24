@@ -33,4 +33,33 @@ class LabelDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec:
       val action = ((labels returning labels.map(_.labelId)) += label)
     db.run(action) map { Id => Id }
   }
+  
+   override def getLabels(uId: Int): Future[Seq[Label]] = {
+    db.run(labels.filter((_.userId === uId)).result)
+  }
+   
+   override def deleteLabel(labelId:Int):Future[Int] ={
+     db.run(labels.filter((_.labelId === labelId)).delete)
+   }  
+   
+   
+     override def getLabelById(labelId: Int): Future[Option[Label]]= {
+    db.run(labels.filter((_.labelId === labelId)).result.headOption)
+  }
+     
+     override def updateLabel(label:Label):Future[Int] ={
+       db.run(labels.filter(_.labelId === label.labelId).update(label))
+     } 
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
 }
