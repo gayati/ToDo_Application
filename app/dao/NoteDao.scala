@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext
 import slick.jdbc.JdbcProfile
 import scala.concurrent.Future
 import model.NoteDto
-import java.sql.Date
+import java.util.Date
 
 @Singleton
 class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) extends INoteDao {
@@ -18,6 +18,11 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
   import dbConfig._
   import profile.api._
+  
+implicit val JavaUtilDateMapper =
+    MappedColumnType .base[java.util.Date, java.sql.Timestamp] (
+      d => new java.sql.Timestamp(d.getTime),
+      d => new java.util.Date(d.getTime))
 
   private class NoteTable(tag: Tag) extends Table[Note](tag, "Note") {
 
@@ -38,10 +43,12 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def ispinned = column[Boolean]("isPinned")
 
     def istrashed = column[Boolean]("isTrashed")
-
+    
     def createdBy = column[Int]("created_by")
+    
+     def reminder = column[Option[Date]]("reminder")
 
-    override def * = (Id, title, description, createddate,updatedDate,color,isarchived, ispinned, istrashed, createdBy) <> ((Note.apply _).tupled, Note.unapply)
+    override def * = (Id, title, description, createddate,updatedDate,color,isarchived, ispinned, istrashed, createdBy,reminder) <> ((Note.apply _).tupled, Note.unapply)
   }
 
   private val notes = TableQuery[NoteTable]

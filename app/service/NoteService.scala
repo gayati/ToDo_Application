@@ -12,7 +12,7 @@ import dao.UserDao
 import dao.IUserDao
 import utilities.JwtToken
 import utilities.RedisCache
-import java.sql.Date
+import java.util.Date
 
 @Singleton
 class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
@@ -24,7 +24,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
         val user = userFuture.get
         val date: Date = new Date(System.currentTimeMillis())
         val note1 = Note(0, note.title, note.description, date, date, note.color, note.isArchived,
-          note.isPinned, note.isTrashed, user.id)
+          note.isPinned, note.isTrashed, user.id,None)
         noteDao.createNote(note1) map { createNoteFuture =>
           createNoteFuture
           "Note Created successfully"
@@ -68,7 +68,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
         var date1 = note.updatedDate
         date1 = date
         note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
-          noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy)
+          noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed,note.createdBy,None)
         var result: String = ""
         noteDao.updateNote(note) map { updatenoteFuture =>
           "success"
