@@ -8,6 +8,7 @@ import service.ILabelService
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json
+import model.NoteLabel
 
 @Singleton
 class LabelController @Inject() (labelService: ILabelService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -61,5 +62,9 @@ class LabelController @Inject() (labelService: ILabelService, cc: ControllerComp
     })
 
   }
+  
+  
+
+
 
 }

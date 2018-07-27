@@ -7,6 +7,7 @@ import scala.concurrent.ExecutionContext
 import slick.jdbc.JdbcProfile
 import model.Label
 import scala.concurrent.Future
+import model.NoteLabel
 
 
 @Singleton
@@ -26,6 +27,22 @@ class LabelDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec:
 
     override def * = (labelId, labelTitle, userId) <> ((Label.apply _).tupled, Label.unapply)
   }
+  
+  
+//  private class NotesLabelTable(tag: Tag) extends Table[NoteLabel](tag, "Notes_Label") {
+//
+//    def noteId = column[Int]("noteId")
+//
+//    def labelId = column[Int]("labelId")
+//
+//    def note = foreignKey("noteId", noteId, notes)(_.noteId)
+//
+//    def label = foreignKey("labelId", labelId, labels)(_.labelId)
+//
+//    def * = (noteId, labelId) <> ((NoteLabel.apply _).tupled, NoteLabel.unapply)
+//
+//  }
+  
 
   private val labels = TableQuery[LabelTabel]
   
@@ -49,8 +66,9 @@ class LabelDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec:
      
      override def updateLabel(label:Label):Future[Int] ={
        db.run(labels.filter(_.labelId === label.labelId).update(label))
-     } 
-     
+     }
+
+    
      
      
      

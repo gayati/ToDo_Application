@@ -11,6 +11,7 @@ import service.INoteService
 import scala.concurrent.Future
 import play.api.libs.json.Json
 import model.Note
+import model.NoteLabel
 
 @Singleton
 class NoteController @Inject() (noteService: INoteService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -61,6 +62,25 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
       println(notes)
       Ok(Json.toJson(notes))
     }
-
   }
+
+     def addNoteLabel() = Action.async { implicit request: Request[AnyContent] =>
+     request.body.asJson.map { json =>
+      var noteLabel: NoteLabel = json.as[NoteLabel]
+      noteService.addnoteLabel(noteLabel) map { addLabelFuture =>
+        addLabelFuture match {
+          case "CreateSuccess"    => Ok("label added successfully.........")
+          case "CreateNotSuccess" => Conflict("Label not added..........")
+        }
+      }
+    }.getOrElse(Future {
+      BadRequest("User has made a bad request")
+    })
+     
+   }
+ 
+    
+  
+  
+  
 }

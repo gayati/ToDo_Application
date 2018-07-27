@@ -3,6 +3,7 @@ package service
 import scala.concurrent.Future
 import model.Label
 import com.google.inject.ImplementedBy
+import model.NoteLabel
 
 @ImplementedBy(classOf[LabelService])
 trait ILabelService {

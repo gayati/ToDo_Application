@@ -4,6 +4,7 @@ import model.NoteDto
 import scala.concurrent.Future
 import com.google.inject.ImplementedBy
 import model.Note
+import model.NoteLabel
 
 @ImplementedBy(classOf[NoteService])
 trait INoteService {
@@ -11,4 +12,6 @@ trait INoteService {
   def deleteNote(noteId: Int,token:String): Future[String]
   def updateNote(noteId:Int,token:String,noteDto:NoteDto): Future[String]
   def getNotes(token:String):Future[Seq[Note]]
+  def addnoteLabel(noteLabel:NoteLabel):Future[String]
+
 }

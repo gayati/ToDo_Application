@@ -13,6 +13,7 @@ import dao.IUserDao
 import utilities.JwtToken
 import utilities.RedisCache
 import java.util.Date
+import model.NoteLabel
 
 @Singleton
 class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
@@ -91,5 +92,13 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
       }
     }
   }
+  
+    override def addnoteLabel(noteLabel:NoteLabel):Future[String] ={
+      val note = NoteLabel(noteLabel.noteId,noteLabel.labelId)
+    noteDao.addNoteLabel(noteLabel) map {addLabeFuture =>
+          addLabeFuture
+          "CreateSuccess"
+    }
+  } 
 
 }
