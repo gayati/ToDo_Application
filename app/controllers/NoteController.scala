@@ -78,6 +78,14 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     })
      
    }
+     
+       def getNoteLabel(noteId:Int) = Action.async { implicit request: Request[AnyContent] =>
+    noteService.getNoteLabels(noteId) map { notes =>
+      notes
+      println(notes)
+      Ok(Json.toJson(notes))
+    }
+  }
  
     
   

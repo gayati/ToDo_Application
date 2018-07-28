@@ -14,6 +14,7 @@ import utilities.JwtToken
 import utilities.RedisCache
 import java.util.Date
 import model.NoteLabel
+import model.Label
 
 @Singleton
 class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
@@ -100,5 +101,17 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
           "CreateSuccess"
     }
   } 
+    
+    override def getNoteLabels(noteId:Int): Future[Seq[Label]] = {
+    noteDao.getNoteLabels(noteId) map { noteFuture =>
+      if (!(noteFuture.equals(None))) {
+        noteFuture
+      } else {
+       null
+      }
+    }
+  }
+    
+    
 
 }

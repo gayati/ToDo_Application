@@ -135,5 +135,15 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   override def addNoteLabel(noteLabel: NoteLabel):Future[Int] = {
    db.run(notesLabel += noteLabel)
   }
+  
+ 
+  def getNoteLabels(noteId: Int): Future[Seq[Label]] = {
+    db.run {
+      val innerJoin = for {
+        (ab, a) <- notesLabel join labels on (_.labelId === _.labelId)
+      } yield (a, ab.noteId)
+      innerJoin.filter(_._2 === noteId).map(_._1).result
+    }
+  }
 
 }
