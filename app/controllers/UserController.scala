@@ -148,7 +148,7 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
       userService.loginUser(userLogin).map { loginFuture =>
         loginFuture match {
           case Some(user) =>
-            var token = jwttoken.generateToken(user.id)
+            var token = jwttoken.generateLoginToken(user.id,user.firstName,user.lastName,user.emailId)
             Ok(token).withHeaders("Headers" -> token)
           case None => Conflict("User not registered.....")
         }
