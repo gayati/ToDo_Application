@@ -32,7 +32,7 @@ class JwtToken {
 
     val currentDate = new Date()
     val expirationdate = new Date(System.currentTimeMillis() + 24*60*60*1000)
-    var fullName = firstName + lastName
+    var fullName = firstName + " " + lastName
     val Jwtbuilder = Jwts.builder().setId(Integer.toString(id))
       .setSubject(email) 
 			.setIssuer(fullName)

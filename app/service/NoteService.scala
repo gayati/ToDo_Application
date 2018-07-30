@@ -88,6 +88,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
     noteDao.getNotes(userId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         noteFuture
+        
       } else {
        null
       }
