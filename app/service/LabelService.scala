@@ -68,7 +68,6 @@ class LabelService @Inject() (userDao: UserDao, noteDao: NoteDao, jwtToken: JwtT
       println("fssssssssssss" + labelFuture)
       if (!(labelFuture.equals(None))) {
         var label = labelFuture.get
-        println("Label........" +label)
         if (uId == label.userId) {
           label = Label(label.labelId,label2.label,label.userId)
           noteDao.updateLabel(label) map { updteFuture =>

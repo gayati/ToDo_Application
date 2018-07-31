@@ -1,7 +1,7 @@
 package model
 
 import play.api.libs.json.Json
-import java.sql.Date
+import java.util.Date
 
 case class RegisterDto(firstName:String,lastName:String,mobileNumber:String, emailId: String, password: String)
 
@@ -28,7 +28,7 @@ object PasswordDto {
 
 case class NoteDto(title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
-    isTrashed:Boolean)
+    isTrashed:Boolean,reminder:Option[Date])
 
 
 object NoteDto {
