@@ -50,6 +50,8 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def createdBy = column[Int]("created_by")
 
     def reminder = column[Option[Date]]("remin_der")
+    
+    //def remindertime = column[String]("reminder_time")
   
     override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder) <> ((Note.apply _).tupled, Note.unapply)
   }

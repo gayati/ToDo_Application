@@ -25,7 +25,11 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
       if (!(userFuture.equals(None))) {
         val user = userFuture.get
         val date: Date = new Date(System.currentTimeMillis())
-               // var reminderDate = new Date(note.reminder)
+//        var reminderDate = null;
+//        if(note.reminder != null){
+//           
+//        var reminderDate = new Date(note.reminder)
+//        }
         val note1 = Note(0, note.title, note.description, date, date, note.color, note.isArchived,
           note.isPinned, note.isTrashed, user.id,note.reminder)
         noteDao.createNote(note1) map { createNoteFuture =>
@@ -70,8 +74,8 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
         // note.updatedDate = date
         var date1 = note.updatedDate
         date1 = date
-        //var reminderDate = new Date(noteDto.reminder)
-       // println("In jfddddkkgfgdfgbg"+reminderDate + "In jfddddkkgfgdfgbg")
+       // var reminderDate = new Date(noteDto.reminder)
+       // println("In jfddddkkgfgdfgbg"+note + "In jfddddkkgfgdfgbg")
 
         note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
           noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed,note.createdBy,noteDto.reminder)
