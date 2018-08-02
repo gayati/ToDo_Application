@@ -15,6 +15,11 @@ import utilities.RedisCache
 import java.util.Date
 import model.NoteLabel
 import model.Label
+import play.api.mvc.Request
+import play.api.mvc.MultipartFormData
+import play.api.libs.Files.TemporaryFile
+import play.api.Logger
+
 
 @Singleton
 class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
@@ -120,6 +125,21 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
       }
     }
   }
+    
+//override def uploadFile(request:Request[MultipartFormData[TemporaryFile]]):String ={
+//    request.body.file("file").map { picture =>
+//      import java.io.File
+//      val filename = picture.filename
+//      print(filename + "fdgggggggggggggggggggggggggggggg")
+//      val contentType = picture.contentType
+//      picture.ref.moveTo(new File(s"/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/uploads/$filename"))
+//      "Fileuploaded"
+//    }.getOrElse {
+//      "Missing file"
+//    }
+//  }
+
+
     
     
 

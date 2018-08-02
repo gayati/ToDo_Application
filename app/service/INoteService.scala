@@ -6,6 +6,10 @@ import com.google.inject.ImplementedBy
 import model.Note
 import model.NoteLabel
 import model.Label
+import play.api.mvc.Request
+import play.api.libs.Files.TemporaryFile
+import play.api.mvc.MultipartFormData
+
 
 @ImplementedBy(classOf[NoteService])
 trait INoteService {
@@ -15,5 +19,6 @@ trait INoteService {
   def getNotes(token:String):Future[Seq[Note]]
   def addnoteLabel(noteLabel:NoteLabel):Future[String]
   def getNoteLabels(noteId:Int): Future[Seq[Label]]
+  //def uploadFile(request:Request[MultipartFormData[TemporaryFile]]):String
 
 }

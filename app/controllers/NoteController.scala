@@ -12,6 +12,7 @@ import scala.concurrent.Future
 import play.api.libs.json.Json
 import model.Note
 import model.NoteLabel
+import java.nio.file.Paths
 
 @Singleton
 class NoteController @Inject() (noteService: INoteService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -86,7 +87,20 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
       Ok(Json.toJson(notes))
     }
   }
- 
+     
+ def upload = Action(parse.multipartFormData) { request =>
+  request.body.file("file").map { picture =>
+        print("In upload............+ "+ picture)
+    // only get the last part of the filename
+    // otherwise someone can send a path like ../../home/foo/bar.txt to write to other files on the system
+    val filename = Paths.get(picture.filename).getFileName
+    println("File uplo..aded..................." + filename)
+    picture.ref.moveTo(Paths.get(s"/tmp/$filename"), replace = true)
+    Ok("File uploaded.....")
+  }.getOrElse {
+    BadRequest("Missing File")
+  }
+}
     
   
   
