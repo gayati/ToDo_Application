@@ -28,7 +28,7 @@ object PasswordDto {
 
 case class NoteDto(title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
-    isTrashed:Boolean,reminder:Option[Date])
+    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String])
 
 
 object NoteDto {
