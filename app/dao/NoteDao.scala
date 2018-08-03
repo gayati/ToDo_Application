@@ -52,8 +52,10 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def reminder = column[Option[Date]]("remin_der")
     
     def remindertime = column[Option[String]]("reminder_time")
+    
+    def image = column[Option[String]]("uploaded_image")
   
-    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder,remindertime) <> ((Note.apply _).tupled, Note.unapply)
+    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder,remindertime,image) <> ((Note.apply _).tupled, Note.unapply)
   }
 
   private val notes = TableQuery[NoteTable]

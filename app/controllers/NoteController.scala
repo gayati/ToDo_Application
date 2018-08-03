@@ -95,12 +95,34 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     // otherwise someone can send a path like ../../home/foo/bar.txt to write to other files on the system
     val filename = Paths.get(picture.filename).getFileName
     println("File uplo..aded..................." + filename)
-    picture.ref.moveTo(Paths.get(s"/tmp/$filename"), replace = true)
-    Ok("File uploaded.....")
+    picture.ref.moveTo(Paths.get(s"/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/app/tmp/$filename"), replace = true)
+    Ok("http://localhost:9000/image/"+filename)
   }.getOrElse {
     BadRequest("Missing File")
   }
 }
+ 
+// def serveUploadedFiles2( file: String ) = Action.async {
+//    implicit request => {
+//      val dicrectoryPath = "/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/app/tmp/"+file
+//         val serveFile = new java.io.File(dicrectoryPath)
+//         println(serveFile + "in Server uploade file...........")
+//          
+//      controllers.Assets.at( dicrectoryPath, file, false ).apply( request )
+//    }
+//  }
+ 
+ def serveUploadedFiles2( file: String ) = Action {
+  Ok.sendFile(
+    content = new java.io.File("/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/app/tmp/" + file),
+    fileName = _ => file
+  )
+}
+ 
+
+ 
+ 
+ 
     
   
   
