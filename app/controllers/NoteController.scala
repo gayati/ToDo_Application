@@ -101,16 +101,6 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     }
   }
 
-  // def serveUploadedFiles2( file: String ) = Action.async {
-  //    implicit request => {
-  //      val dicrectoryPath = "/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/app/tmp/"+file
-  //         val serveFile = new java.io.File(dicrectoryPath)
-  //         println(serveFile + "in Server uploade file...........")
-  //
-  //      controllers.Assets.at( dicrectoryPath, file, false ).apply( request )
-  //    }
-  //  }
-
   def serveUploadedFiles2(file: String) = Action {
     Ok.sendFile(
       content = new java.io.File("/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/app/tmp/" + file),

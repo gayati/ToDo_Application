@@ -24,24 +24,10 @@ import play.api.libs._
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import utilities.JwtToken
+import play.api.libs.json.Json
 
 @Singleton
 class UserController @Inject() (userService: IUserService, uservalidation: UserValidation, jwttoken: JwtToken, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
-
-  /* {
-    override def toResult(e: Exception) = super.toResult(e)
-
-  }
-*/
-
-
-
-  //  def preflight(all: String) = Action {
-  //    Ok("").withHeaders("Access-Control-Allow-Origin" -> "*",
-  //      "Allow" -> "*",
-  //      "Access-Control-Allow-Methods" -> "POST, GET, PUT, DELETE, OPTIONS",
-  //      "Access-Control-Allow-Headers" -> "Origin, X-Requested-With, Content-Type, Accept, Referrer, User-Agent");
-  //  }
 
   def register() = Action.async { implicit request: Request[AnyContent] =>
 
@@ -70,24 +56,6 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     })
   }
 
-  //    def register() = Action.async { implicit request: Request[AnyContent] =>
-  //      var host: String = request.host
-  //      println("host" + host)
-  //      request.body.asJson.map { json =>
-  //        var user: RegisterDto = json.as[RegisterDto]
-  //        userService.registerUser(host, user).map {
-  //          future => Ok(future)
-  //        }.recover {
-  //          case exception: Exception => {
-  //            exception.printStackTrace()
-  //            Conflict("Registration failed..........")
-  //          }
-  //        }
-  //      }.getOrElse(Future {
-  //        BadRequest("Registration Failed..!!")
-  //      })
-  //    }
-
   def isActivated(token: String) = Action.async { implicit request: Request[AnyContent] =>
     println("token in controller: " + token)
     userService.activateUser(token).map({
@@ -104,7 +72,6 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     }
   }
 
-  
   def forgotPassword() = Action.async { implicit request: Request[AnyContent] =>
     var host = request.host
     var url: String = request.headers.get("origin").get
@@ -121,7 +88,6 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     })
   }
 
-  
   def resetPassword(token: String) = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
       var passwordDto: PasswordDto = json.as[PasswordDto]
@@ -141,14 +107,13 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     })
   }
 
-  
   def login() = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
       var userLogin: LoginDto = json.as[LoginDto]
       userService.loginUser(userLogin).map { loginFuture =>
         loginFuture match {
           case Some(user) =>
-            var token = jwttoken.generateLoginToken(user.id,user.firstName,user.lastName,user.emailId)
+            var token = jwttoken.generateLoginToken(user.id, user.firstName, user.lastName, user.emailId)
             Ok(token).withHeaders("Headers" -> token)
           case None => Conflict("User not registered.....")
         }
@@ -163,41 +128,27 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     })
   }
 
+  def updateUser() = Action.async { implicit request: Request[AnyContent] =>
+    request.body.asJson.map { json =>
+      var user = json.as[User]
+      userService.updateUser(user).map { updateUserFuture =>
+        Ok(updateUserFuture)
+      }
+    }.getOrElse(Future {
+      BadRequest("User has made a bad request")
+    })
+  }
+  
+   def getUser() = Action.async { implicit request: Request[AnyContent] =>
+    var token = request.headers.get("Headers").get
+    userService.getUser(token) map { user =>
+      user
+      println(user)
+      Ok(Json.toJson(user))
+    }
+  }
+   
 }
  
-  //val b = uservalidation.emailValidate(user.emailId)
-  //        println(uservalidation.emailValidate(user.emailId))
-  //        if ((uservalidation.emailValidate(user.emailId)) && (uservalidation.passwordValidate(user.password))) {
-  //          var passwordHash: String = BCrypt.hashpw(user.password, BCrypt.gensalt());
-  //          var user1 = RegisterDto(user.username, user.emailId, passwordHash)
-  //          println(user1.toString() + "hassh")
-  //          userService.isUserExist(user1.emailId) map {
-  //            userFuture =>
-  //              userFuture match {
-  //                case Some(user1) => {
-  //                  BadRequest("User already exists")
-  //                }
-  //                case None => {
-  //                  print(userFuture.toString() + "return")
-  //                  var string: Future[Result] = userService.registerUser(user1) map {
-  //                    registrationFuture =>
-  //                      Ok(registrationFuture)
-  //                  }
-  //                  Ok("User registration successful")
-  //                }
-  //              }
-  //            //            println(result.body)
-  //            //            result
-  //          }
-  //
-  //        } else {
-  //          Future { Ok("Please enter valid fields") }
-  //        }
-  //      }
-  //      case None => {
-  //        Future(BadRequest("Something went wrong in json parsing...."))
-  //      }
-  //    }
-  //
-  //  }
+  
 

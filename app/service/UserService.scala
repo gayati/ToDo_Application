@@ -60,7 +60,7 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
   override def registerUser(host: String, url: String, registerDto: RegisterDto): Future[String] = {
 
     var passwordHash: String = BCrypt.hashpw(registerDto.password, BCrypt.gensalt());
-    var user1 = User(0, registerDto.firstName, registerDto.lastName, registerDto.mobileNumber, registerDto.emailId, passwordHash, false)
+    var user1 = User(0, registerDto.firstName, registerDto.lastName, registerDto.mobileNumber, registerDto.emailId, passwordHash, false,None)
     println(user1.toString() + "hassh")
     userDao.isExist(user1.emailId) map {
       userFuture =>
@@ -104,13 +104,13 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
   //    userDao.isExist(email)
   //  }
 
-  def getUser(tokenId: String) = {
-    val id: Int = jwttoken.getTokenId(tokenId)
-    print(id)
-    userDao.getUserById(id).map({
-      userFuture => userFuture
-    })
-  }
+//  def getUser(tokenId: String) = {
+//    val id: Int = jwttoken.getTokenId(tokenId)
+//    print(id)
+//    userDao.getUserById(id).map({
+//      userFuture => userFuture
+//    })
+//  }
 
   override def activateUser(tokenId: String): Future[String] = {
     val id: Int = jwttoken.getTokenId(tokenId)
@@ -123,7 +123,7 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
           var user = userFuture.get
           var verified = user.isVerified
           verified = true
-          user = User(user.id, user.firstName, user.lastName, user.mobileNumber, user.emailId, user.password, verified)
+          user = User(user.id, user.firstName, user.lastName, user.mobileNumber, user.emailId, user.password, verified,None)
           println(user.toString())
           userDao.update(user).map({ updateFuture =>
             updateFuture
@@ -141,7 +141,7 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
   }
 
   override def loginUser(loginDto: LoginDto): Future[Option[User]] = {
-    var tempUser: User = User(0, "", "", "", loginDto.emailId, "", false)
+    var tempUser: User = User(0, "", "", "", loginDto.emailId, "", false,None)
     //    if (uservalidation.emailValidate(tempUser.emailId)) {
     userDao.login(tempUser).map { loginFuture =>
       if (!(loginFuture.equals(None))) {
@@ -192,7 +192,7 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
         userDao.getUserById(id).map { userFuture =>
           var user = userFuture.get
           var passwordHash: String = BCrypt.hashpw(passwordDto.password, BCrypt.gensalt());
-          user = User(user.id, user.firstName, user.lastName, user.mobileNumber, user.emailId, passwordHash, user.isVerified)
+          user = User(user.id, user.firstName, user.lastName, user.mobileNumber, user.emailId, passwordHash, user.isVerified,None)
           userDao.update(user).map { updateFuture =>
             updateFuture
             "Reset"
@@ -205,5 +205,26 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
       }
     }
   }
+  
+  override def updateUser(user:User):Future[String] ={
+    userDao.update(user) map { updateUserFuture =>
+      updateUserFuture
+      "Updated"
+    }
+  }
+  
+    override def getUser(token: String): Future[Option[User]] = {
+      println("In get user token:......................." + token)
+    val userId = jwttoken.getTokenId(token)
+    println("In get user................." + userId)
+    userDao.getUserById(userId) map { userFuture =>
+      if (!(userFuture.equals(None))) {
+        userFuture
+      } else {
+       null
+      }
+    }
+  }
+  
 
 }

@@ -33,8 +33,10 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def passWord = column[String]("password")
 
     def isVerified = column[Boolean]("isverified")
+    
+    def profileImage = column[Option[String]]("profile_image")
 
-    override def * = (id, firstName, lastName, mobileNumber, email, passWord, isVerified) <> ((User.apply _).tupled, User.unapply)
+    override def * = (id, firstName, lastName, mobileNumber, email, passWord, isVerified,profileImage) <> ((User.apply _).tupled, User.unapply)
 
   }
 
@@ -70,8 +72,8 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     db.run(users.filter(_.email === emailid).result.headOption)
   }
 
-  //  override def createNote(note:Note):Future[String]={
-  //
-  //  }
+//    override def updateUser(user:User):Future[Int]={
+//    db.run(users.filter(_.id === user.id).update(user))
+//    }
 
 }
