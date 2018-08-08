@@ -26,9 +26,9 @@ object PasswordDto {
   implicit val PasswordDto = Json.format[PasswordDto]
 }
 
-case class NoteDto(title: String, description: String,color:String,isArchived:Boolean,
+case class NoteDto(noteId:Int,title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
-    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String])
+    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],labelList:Seq[Label])
 
 
 object NoteDto {

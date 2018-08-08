@@ -20,7 +20,6 @@ import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
 import play.api.Logger
 
-
 @Singleton
 class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
 
@@ -30,13 +29,13 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
       if (!(userFuture.equals(None))) {
         val user = userFuture.get
         val date: Date = new Date(System.currentTimeMillis())
-//        var reminderDate = null;
-//        if(note.reminder != null){
-//           
-//        var reminderDate = new Date(note.reminder)
-//        }
+        //        var reminderDate = null;
+        //        if(note.reminder != null){
+        //
+        //        var reminderDate = new Date(note.reminder)
+        //        }
         val note1 = Note(0, note.title, note.description, date, date, note.color, note.isArchived,
-          note.isPinned, note.isTrashed, user.id,note.reminder,note.remindertime,note.image)
+          note.isPinned, note.isTrashed, user.id, note.reminder, note.remindertime, note.image)
         noteDao.createNote(note1) map { createNoteFuture =>
           createNoteFuture
           "Note Created successfully"
@@ -57,12 +56,12 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
         if (uId == note.createdBy) {
           noteDao.deleteNote(noteId) map { deletenoteFuture =>
             deletenoteFuture
-           "DeleteSuccess"
+            "DeleteSuccess"
           }
         } else {
-         "DeleteNotSuccess"
+          "DeleteNotSuccess"
         }
-       "DeleteSuccess"
+        "DeleteSuccess"
       } else {
         "DeleteNotSuccess"
       }
@@ -75,23 +74,23 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
       if (!(noteFuture.equals(None))) {
         var note = noteFuture.get
         if (uId == note.createdBy) {
-        var date: Date = new Date(System.currentTimeMillis())
-        // note.updatedDate = date
-        var date1 = note.updatedDate
-        date1 = date
-       // var reminderDate = new Date(noteDto.reminder)
-       // println("In jfddddkkgfgdfgbg"+note + "In jfddddkkgfgdfgbg")
+          var date: Date = new Date(System.currentTimeMillis())
+          // note.updatedDate = date
+          var date1 = note.updatedDate
+          date1 = date
+          // var reminderDate = new Date(noteDto.reminder)
+          // println("In jfddddkkgfgdfgbg"+note + "In jfddddkkgfgdfgbg")
 
-        note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
-          noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed,note.createdBy,noteDto.reminder,noteDto.remindertime,noteDto.image)
-        var result: String = ""
-        noteDao.updateNote(note) map { updatenoteFuture =>
+          note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
+            noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy, noteDto.reminder, noteDto.remindertime, noteDto.image)
+          var result: String = ""
+          noteDao.updateNote(note) map { updatenoteFuture =>
+            "success"
+
+          }
           "success"
-          
-        }
-                 "success"
 
-         } else { "Acesss denied........." }
+        } else { "Acesss denied........." }
       } else { "Note not found" }
     }
   }
@@ -101,46 +100,52 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
     noteDao.getNotes(userId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         noteFuture
-        
+
       } else {
-       null
+        null
       }
     }
   }
-  
-    override def addnoteLabel(noteLabel:NoteLabel):Future[String] ={
-      val note = NoteLabel(noteLabel.noteId,noteLabel.labelId)
-    noteDao.addNoteLabel(noteLabel) map {addLabeFuture =>
-          addLabeFuture
-          "CreateSuccess"
+
+  override def addnoteLabel(noteLabel: NoteLabel): Future[String] = {
+    val note = NoteLabel(noteLabel.noteId, noteLabel.labelId)
+    noteDao.addNoteLabel(noteLabel) map { addLabeFuture =>
+      addLabeFuture
+      "CreateSuccess"
     }
-  } 
-    
-    override def getNoteLabels(noteId:Int): Future[Seq[Label]] = {
+  }
+
+  override def getNoteLabels(noteId: Int): Future[Seq[Label]] = {
     noteDao.getNoteLabels(noteId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         noteFuture
       } else {
-       null
+        null
       }
     }
   }
-    
-//override def uploadFile(request:Request[MultipartFormData[TemporaryFile]]):String ={
-//    request.body.file("file").map { picture =>
-//      import java.io.File
-//      val filename = picture.filename
-//      print(filename + "fdgggggggggggggggggggggggggggggg")
-//      val contentType = picture.contentType
-//      picture.ref.moveTo(new File(s"/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/uploads/$filename"))
-//      "Fileuploaded"
-//    }.getOrElse {
-//      "Missing file"
-//    }
-//  }
+  
+    def removeLabel(noteId:Int):Future[String]={
+      noteDao.removeLabel(noteId) map { deletFuture =>
+        deletFuture
+        "deleteSuccess"
+      }
+        
+      
+    }
 
 
-    
-    
+  //override def uploadFile(request:Request[MultipartFormData[TemporaryFile]]):String ={
+  //    request.body.file("file").map { picture =>
+  //      import java.io.File
+  //      val filename = picture.filename
+  //      print(filename + "fdgggggggggggggggggggggggggggggg")
+  //      val contentType = picture.contentType
+  //      picture.ref.moveTo(new File(s"/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/uploads/$filename"))
+  //      "Fileuploaded"
+  //    }.getOrElse {
+  //      "Missing file"
+  //    }
+  //  }
 
 }

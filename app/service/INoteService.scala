@@ -19,6 +19,7 @@ trait INoteService {
   def getNotes(token:String):Future[Seq[Note]]
   def addnoteLabel(noteLabel:NoteLabel):Future[String]
   def getNoteLabels(noteId:Int): Future[Seq[Label]]
+  def removeLabel(noteId:Int):Future[String]
   //def uploadFile(request:Request[MultipartFormData[TemporaryFile]]):String
 
 }

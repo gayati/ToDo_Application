@@ -13,6 +13,12 @@ import play.api.libs.json.Json
 import model.Note
 import model.NoteLabel
 import java.nio.file.Paths
+import java.util.Date
+import scala.util.Success
+import scala.util.Failure
+import model.Label
+import scala.concurrent.duration._
+import scala.concurrent.Await
 
 @Singleton
 class NoteController @Inject() (noteService: INoteService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -55,13 +61,64 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     })
   }
 
+  //  def getNotes() = Action.async { implicit request: Request[AnyContent] =>
+  //    var token = request.headers.get("Headers").get
+  //    noteService.getNotes(token) map { notes =>
+  //      notes
+  //      println(notes)
+  //      Ok(Json.toJson(notes))
+  //    }
+  //  }
+
   def getNotes() = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
     noteService.getNotes(token) map { notes =>
       notes
-      println(notes)
-      Ok(Json.toJson(notes))
+      var a = 0
+      var x = Seq[NoteDto]()
+
+      for (a <- 0 until notes.length by 1) {
+
+        var note = notes(a)
+        println(note + " note..................dsfsdfd")
+        var labelList = noteService.getNoteLabels(note.noteId)
+
+        var data = Await.result(labelList, 1 second)
+        println(data + "rtttttttttttttttttt")
+        var noteDto = NoteDto(note.noteId,note.title, note.description, note.color, note.isArchived,
+          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data)
+        println(noteDto + "noteDto.................................")
+
+        x = x :+ (noteDto)
+        println(x + "final list of notes.......................")
+
+        //           onComplete {
+        //        case Success(a) =>  println(labeList + "dfaefereruuuuuuuuuuuuuuuuuuuuu")
+        //        case Failure(e)=> Ok("")
+        //        }
+
+        //           println(labeList + "labe..........List")
+        //
+
+      }
+
+      Ok(Json.toJson(x))
+
+      // println(list)
+
     }
+
+    //      f onComplete {
+    //        case Success(a) =>  Ok(Json.toJson(a))
+    //        case Failure(e)=> Ok("")
+    //        }
+
+    //      f map {
+    //        a =>
+    //          Ok(Json.toJson(a))
+    //      }
+    //println(list)
+    //Ok(Json.toJson(f))
   }
 
   def addNoteLabel() = Action.async { implicit request: Request[AnyContent] =>
@@ -102,9 +159,21 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
   }
 
   def serveUploadedFiles2(file: String) = Action {
+    print(file + "ServeUploadFile...............")
     Ok.sendFile(
       content = new java.io.File("/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/app/tmp/" + file),
       fileName = _ => file)
+  }
+  
+  def removeLabel(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
+    var token = request.headers.get("Headers").get
+    noteService.removeLabel(noteId) map { deleteFuture =>
+      Ok(deleteFuture)
+//      deleteFuture match {
+//        case "DeleteSuccess"    => Ok("Delete success..........")
+//        case "DeleteNotSuccess" => Conflict("Delete failure.........")
+      
+    }
   }
 
 }

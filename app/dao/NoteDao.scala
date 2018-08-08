@@ -54,6 +54,8 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def remindertime = column[Option[String]]("reminder_time")
     
     def image = column[Option[String]]("uploaded_image")
+    
+//    def labelList = column[[String]]("")
   
     override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder,remindertime,image) <> ((Note.apply _).tupled, Note.unapply)
   }
@@ -149,5 +151,9 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
       innerJoin.filter(_._2 === noteId).map(_._1).result
     }
   }
+  
+   def removeLabel(noteId:Int):Future[Int]={
+     db.run(notesLabel.filter((_.noteId === noteId)).delete)
+   }
 
 }
