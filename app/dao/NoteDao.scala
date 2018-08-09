@@ -152,8 +152,13 @@ class NoteDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     }
   }
   
-   def removeLabel(noteId:Int):Future[Int]={
-     db.run(notesLabel.filter((_.noteId === noteId)).delete)
+   def removeLabel(noteId:Int,labelId:Int):Future[Int]={
+//         db.run(notesLabel.filter(_.noteId === noteId).delete)
+
+    db.run(notesLabel.filter(value => value.noteId === noteId 
+         && value.labelId === labelId).delete)
+
+    
    }
 
 }

@@ -19,6 +19,7 @@ import scala.util.Failure
 import model.Label
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import model.CreateNoteDto
 
 @Singleton
 class NoteController @Inject() (noteService: INoteService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -26,7 +27,8 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
   def createNote() = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
     request.body.asJson.map { json =>
-      var note: NoteDto = json.as[NoteDto]
+      var note: CreateNoteDto = json.as[CreateNoteDto]
+      println("fgfdgdfgggfdggfg" + note)
       noteService.createNote(note, token) map { createnoteFuture =>
         Ok(createnoteFuture)
       }
@@ -50,7 +52,7 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     var token = request.headers.get("Headers").get
     println("Update nOte " + token)
     request.body.asJson.map { json =>
-      var note: NoteDto = json.as[NoteDto]
+      var note: CreateNoteDto = json.as[CreateNoteDto]
       noteService.updateNote(noteId, token, note) map { updateFuture =>
         updateFuture match {
           case success => Ok("Update success............")
@@ -60,15 +62,16 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
       BadRequest("User has made a bad request")
     })
   }
-
-  //  def getNotes() = Action.async { implicit request: Request[AnyContent] =>
-  //    var token = request.headers.get("Headers").get
-  //    noteService.getNotes(token) map { notes =>
-  //      notes
-  //      println(notes)
-  //      Ok(Json.toJson(notes))
-  //    }
-  //  }
+  
+//
+//    def getNotes() = Action.async { implicit request: Request[AnyContent] =>
+//      var token = request.headers.get("Headers").get
+//      noteService.getNotes(token) map { notes =>
+//        notes
+//        println(notes)
+//        Ok(Json.toJson(notes))
+//      }
+//    }
 
   def getNotes() = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
@@ -124,6 +127,7 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
   def addNoteLabel() = Action.async { implicit request: Request[AnyContent] =>
     request.body.asJson.map { json =>
       var noteLabel: NoteLabel = json.as[NoteLabel]
+      
       noteService.addnoteLabel(noteLabel) map { addLabelFuture =>
         addLabelFuture match {
           case "CreateSuccess"    => Ok("label added successfully.........")
@@ -165,9 +169,10 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
       fileName = _ => file)
   }
   
-  def removeLabel(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
+  def removeLabel(noteId: Int,labelId:Int) = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
-    noteService.removeLabel(noteId) map { deleteFuture =>
+    println(labelId + "In remove Label........................")
+    noteService.removeLabel(noteId,labelId) map { deleteFuture =>
       Ok(deleteFuture)
 //      deleteFuture match {
 //        case "DeleteSuccess"    => Ok("Delete success..........")

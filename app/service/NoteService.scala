@@ -19,11 +19,12 @@ import play.api.mvc.Request
 import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
 import play.api.Logger
+import model.CreateNoteDto
 
 @Singleton
 class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
 
-  override def createNote(note: NoteDto, token: String): Future[String] = {
+  override def createNote(note: CreateNoteDto, token: String): Future[String] = {
     val id = jwtToken.getTokenId(token)
     userDao.getUserById(id) map { userFuture =>
       if (!(userFuture.equals(None))) {
@@ -68,7 +69,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
     }
   }
 
-  override def updateNote(noteId: Int, token: String, noteDto: NoteDto): Future[String] = {
+  override def updateNote(noteId: Int, token: String, noteDto: CreateNoteDto): Future[String] = {
     val uId = jwtToken.getTokenId(token)
     noteDao.getNoteById(noteId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
@@ -125,8 +126,8 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
     }
   }
   
-    def removeLabel(noteId:Int):Future[String]={
-      noteDao.removeLabel(noteId) map { deletFuture =>
+    def removeLabel(noteId:Int,labelId:Int):Future[String]={
+      noteDao.removeLabel(noteId,labelId) map { deletFuture =>
         deletFuture
         "deleteSuccess"
       }

@@ -21,5 +21,5 @@ trait INoteDao {
   def updateLabel(label:Label):Future[Int]
   def addNoteLabel(noteLabel:NoteLabel):Future[Int]
   def getNoteLabels(noteId: Int): Future[Seq[Label]]
-   def removeLabel(noteId:Int):Future[Int]
+   def removeLabel(noteId:Int,labelId:Int):Future[Int]
 }
