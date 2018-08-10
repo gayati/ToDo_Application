@@ -28,7 +28,8 @@ object PasswordDto {
 
 case class NoteDto(noteId:Int,title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
-    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],labelList:Seq[Label])
+    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],
+    labelList:Seq[Label],createdBy:Int)
 
 
 object NoteDto {
@@ -43,4 +44,5 @@ case class CreateNoteDto(title: String, description: String,color:String,isArchi
 object CreateNoteDto {
   implicit val CreateNoteDto = Json.format[CreateNoteDto]
 }
+
 

@@ -89,7 +89,7 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
         var data = Await.result(labelList, 1 second)
         println(data + "rtttttttttttttttttt")
         var noteDto = NoteDto(note.noteId,note.title, note.description, note.color, note.isArchived,
-          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data)
+          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy)
         println(noteDto + "noteDto.................................")
 
         x = x :+ (noteDto)

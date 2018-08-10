@@ -17,56 +17,56 @@ class LabelDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec:
   import dbConfig._
   import profile.api._
 
-  private class LabelTabel(tag: Tag) extends Table[Label](tag, "Label") {
-
-    def labelId = column[Int]("label_id", O.PrimaryKey, O.AutoInc)
-
-    def labelTitle = column[String]("label_title")
-
-    def userId = column[Int]("user_id")
-
-    override def * = (labelId, labelTitle, userId) <> ((Label.apply _).tupled, Label.unapply)
-  }
-  
-  
-//  private class NotesLabelTable(tag: Tag) extends Table[NoteLabel](tag, "Notes_Label") {
+//  private class LabelTabel(tag: Tag) extends Table[Label](tag, "Label") {
 //
-//    def noteId = column[Int]("noteId")
+//    def labelId = column[Int]("label_id", O.PrimaryKey, O.AutoInc)
 //
-//    def labelId = column[Int]("labelId")
+//    def labelTitle = column[String]("label_title")
 //
-//    def note = foreignKey("noteId", noteId, notes)(_.noteId)
+//    def userId = column[Int]("user_id")
 //
-//    def label = foreignKey("labelId", labelId, labels)(_.labelId)
-//
-//    def * = (noteId, labelId) <> ((NoteLabel.apply _).tupled, NoteLabel.unapply)
-//
+//    override def * = (labelId, labelTitle, userId) <> ((Label.apply _).tupled, Label.unapply)
 //  }
-  
-
-  private val labels = TableQuery[LabelTabel]
-  
-  override def addLabel(label:Label):Future[Int]={
-      val action = ((labels returning labels.map(_.labelId)) += label)
-    db.run(action) map { Id => Id }
-  }
-  
-   override def getLabels(uId: Int): Future[Seq[Label]] = {
-    db.run(labels.filter((_.userId === uId)).result)
-  }
-   
-   override def deleteLabel(labelId:Int):Future[Int] ={
-     db.run(labels.filter((_.labelId === labelId)).delete)
-   }  
-   
-   
-     override def getLabelById(labelId: Int): Future[Option[Label]]= {
-    db.run(labels.filter((_.labelId === labelId)).result.headOption)
-  }
-     
-     override def updateLabel(label:Label):Future[Int] ={
-       db.run(labels.filter(_.labelId === label.labelId).update(label))
-     }
+//  
+//  
+////  private class NotesLabelTable(tag: Tag) extends Table[NoteLabel](tag, "Notes_Label") {
+////
+////    def noteId = column[Int]("noteId")
+////
+////    def labelId = column[Int]("labelId")
+////
+////    def note = foreignKey("noteId", noteId, notes)(_.noteId)
+////
+////    def label = foreignKey("labelId", labelId, labels)(_.labelId)
+////
+////    def * = (noteId, labelId) <> ((NoteLabel.apply _).tupled, NoteLabel.unapply)
+////
+////  }
+//  
+//
+//  private val labels = TableQuery[LabelTabel]
+//  
+//  override def addLabel(label:Label):Future[Int]={
+//      val action = ((labels returning labels.map(_.labelId)) += label)
+//    db.run(action) map { Id => Id }
+//  }
+//  
+//   override def getLabels(uId: Int): Future[Seq[Label]] = {
+//    db.run(labels.filter((_.userId === uId)).result)
+//  }
+//   
+//   override def deleteLabel(labelId:Int):Future[Int] ={
+//     db.run(labels.filter((_.labelId === labelId)).delete)
+//   }  
+//   
+//   
+//     override def getLabelById(labelId: Int): Future[Option[Label]]= {
+//    db.run(labels.filter((_.labelId === labelId)).result.headOption)
+//  }
+//     
+//     override def updateLabel(label:Label):Future[Int] ={
+//       db.run(labels.filter(_.labelId === label.labelId).update(label))
+//     }
 
     
      

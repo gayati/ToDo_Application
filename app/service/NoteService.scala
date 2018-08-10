@@ -22,7 +22,7 @@ import play.api.Logger
 import model.CreateNoteDto
 
 @Singleton
-class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
+class NoteService @Inject() ( userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
 
   override def createNote(note: CreateNoteDto, token: String): Future[String] = {
     val id = jwtToken.getTokenId(token)
@@ -37,7 +37,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
         //        }
         val note1 = Note(0, note.title, note.description, date, date, note.color, note.isArchived,
           note.isPinned, note.isTrashed, user.id, note.reminder, note.remindertime, note.image)
-        noteDao.createNote(note1) map { createNoteFuture =>
+        userDao.createNote(note1) map { createNoteFuture =>
           createNoteFuture
           "Note Created successfully"
         }
@@ -50,12 +50,12 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
 
   override def deleteNote(noteId: Int, token: String): Future[String] = {
     val uId = jwtToken.getTokenId(token)
-    noteDao.getNoteById(noteId) map { noteFuture =>
+    userDao.getNoteById(noteId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         val note = noteFuture.get
         // val userId = note.createdBy
         if (uId == note.createdBy) {
-          noteDao.deleteNote(noteId) map { deletenoteFuture =>
+          userDao.deleteNote(noteId) map { deletenoteFuture =>
             deletenoteFuture
             "DeleteSuccess"
           }
@@ -71,7 +71,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
 
   override def updateNote(noteId: Int, token: String, noteDto: CreateNoteDto): Future[String] = {
     val uId = jwtToken.getTokenId(token)
-    noteDao.getNoteById(noteId) map { noteFuture =>
+    userDao.getNoteById(noteId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         var note = noteFuture.get
         if (uId == note.createdBy) {
@@ -85,7 +85,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
           note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
             noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy, noteDto.reminder, noteDto.remindertime, noteDto.image)
           var result: String = ""
-          noteDao.updateNote(note) map { updatenoteFuture =>
+          userDao.updateNote(note) map { updatenoteFuture =>
             "success"
 
           }
@@ -98,7 +98,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
 
   override def getNotes(token: String): Future[Seq[Note]] = {
     val userId = jwtToken.getTokenId(token)
-    noteDao.getNotes(userId) map { noteFuture =>
+    userDao.getNotes(userId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         noteFuture
 
@@ -110,14 +110,14 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
 
   override def addnoteLabel(noteLabel: NoteLabel): Future[String] = {
     val note = NoteLabel(noteLabel.noteId, noteLabel.labelId)
-    noteDao.addNoteLabel(noteLabel) map { addLabeFuture =>
+    userDao.addNoteLabel(noteLabel) map { addLabeFuture =>
       addLabeFuture
       "CreateSuccess"
     }
   }
 
   override def getNoteLabels(noteId: Int): Future[Seq[Label]] = {
-    noteDao.getNoteLabels(noteId) map { noteFuture =>
+    userDao.getNoteLabels(noteId) map { noteFuture =>
       if (!(noteFuture.equals(None))) {
         noteFuture
       } else {
@@ -127,7 +127,7 @@ class NoteService @Inject() (noteDao: INoteDao, userDao: IUserDao, jwtToken: Jwt
   }
   
     def removeLabel(noteId:Int,labelId:Int):Future[String]={
-      noteDao.removeLabel(noteId,labelId) map { deletFuture =>
+      userDao.removeLabel(noteId,labelId) map { deletFuture =>
         deletFuture
         "deleteSuccess"
       }

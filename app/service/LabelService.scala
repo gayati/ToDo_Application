@@ -12,7 +12,7 @@ import model.NoteLabel
 import dao.NoteDao
 
 @Singleton
-class LabelService @Inject() (userDao: UserDao, noteDao: NoteDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends ILabelService {
+class LabelService @Inject() (userDao: UserDao,jwtToken: JwtToken)(implicit ec: ExecutionContext) extends ILabelService {
 
   override def addLabel(label: Label, token: String): Future[String] = {
     val id = jwtToken.getTokenId(token)
@@ -20,7 +20,7 @@ class LabelService @Inject() (userDao: UserDao, noteDao: NoteDao, jwtToken: JwtT
       if (!(userFuture.equals(None))) {
         val user = userFuture.get
         val label1 = Label(label.labelId, label.label, user.id)
-        noteDao.addLabel(label1) map { addLabeFuture =>
+        userDao.addLabel(label1) map { addLabeFuture =>
           addLabeFuture
           "CreateSuccess"
         }
@@ -33,7 +33,7 @@ class LabelService @Inject() (userDao: UserDao, noteDao: NoteDao, jwtToken: JwtT
 
   override def getLabels(token: String): Future[Seq[Label]] = {
     val userId = jwtToken.getTokenId(token)
-    noteDao.getLabels(userId) map { labelFuture =>
+    userDao.getLabels(userId) map { labelFuture =>
       if (!(labelFuture.equals(None))) {
         labelFuture
       } else {
@@ -44,11 +44,11 @@ class LabelService @Inject() (userDao: UserDao, noteDao: NoteDao, jwtToken: JwtT
 
   override def deleteLabel(labelId: Int, token: String): Future[String] = {
     val uId = jwtToken.getTokenId(token)
-    noteDao.getLabelById(labelId) map { labelFuture =>
+    userDao.getLabelById(labelId) map { labelFuture =>
       if (!(labelFuture.equals(None))) {
         val label = labelFuture.get
         if (uId == label.userId) {
-          noteDao.deleteLabel(labelId) map { deletelabelFuture =>
+          userDao.deleteLabel(labelId) map { deletelabelFuture =>
             deletelabelFuture
             "DeleteSuccess"
           }
@@ -64,13 +64,13 @@ class LabelService @Inject() (userDao: UserDao, noteDao: NoteDao, jwtToken: JwtT
 
   override def updateLabel(labelId: Int, token: String,label2:Label): Future[String] = {
     val uId = jwtToken.getTokenId(token)
-    noteDao.getLabelById(labelId) map { labelFuture =>
+    userDao.getLabelById(labelId) map { labelFuture =>
       println("fssssssssssss" + labelFuture)
       if (!(labelFuture.equals(None))) {
         var label = labelFuture.get
         if (uId == label.userId) {
           label = Label(label.labelId,label2.label,label.userId)
-          noteDao.updateLabel(label) map { updteFuture =>
+          userDao.updateLabel(label) map { updteFuture =>
             updteFuture
             "updateSuccess"
           }
