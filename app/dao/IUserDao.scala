@@ -32,4 +32,5 @@ trait IUserDao {
   def getNoteLabels(noteId: Int): Future[Seq[Label]]
   def removeLabel(noteId:Int,labelId:Int):Future[Int]
   def addCollaberator(collaberator:Collaberator):Future[Int]
+  def getCollaberator(collaberatorId:Int):Future[Seq[Collaberator]]
 }  

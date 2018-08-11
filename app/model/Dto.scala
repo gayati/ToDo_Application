@@ -45,4 +45,13 @@ object CreateNoteDto {
   implicit val CreateNoteDto = Json.format[CreateNoteDto]
 }
 
+case class CollaberatorDto(sharedBy:Int,sharedTo:String,noteId:Int)
+
+object CollaberatorDto{
+  implicit val CollaberatorDto = Json.format[CollaberatorDto]
+}
+
+
+
+
 

@@ -222,9 +222,9 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
     def collaberatorId = column[Int]("collaberator_id", O.PrimaryKey, O.AutoInc)
 
-    def sharedBy = column[String]("shared_by")
+    def sharedBy = column[Int]("shared_by")
 
-    def sharedTo = column[String]("shared_to")
+    def sharedTo = column[Int]("shared_to")
     
     def noteId = column[Int]("note_id")
 
@@ -238,6 +238,11 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
      val action = ((collaberators returning collaberators.map(_.collaberatorId)) += collaberator)
     db.run(action) map { Id => Id }
 }
+  
+    override def getCollaberator(collaberatorId:Int):Future[Seq[Collaberator]]={
+      db.run(collaberators.filter(_.collaberatorId === collaberatorId).result)
+    }
+
   
   
   

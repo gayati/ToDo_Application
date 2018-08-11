@@ -10,7 +10,7 @@ GET      /                        controllers.HomeController.index
 POST     /register                controllers.UserController.register()
 POST     /login                   controllers.UserController.login()
 POST     /addLabel                controllers.LabelController.addLabel()
-
+POST     /addCollaberator         controllers.CollaberatorCtrl.addCollaberator()
 GET      /activateuser/:token     controllers.UserController.isActivated(token)
 POST     /forgotpassword          controllers.UserController.forgotPassword()
 POST     /resetpassword/:token    controllers.UserController.resetPassword(token)
@@ -22,13 +22,12 @@ GET      /getLabels               controllers.LabelController.getLabels()
 DELETE   /deleteLabel/:labelId    controllers.LabelController.deleteLabel(labelId: Int)
 PUT      /updateLabel/:labelId    controllers.LabelController.updateLabel(labelId: Int)
 POST     /addnoteLabel            controllers.NoteController.addNoteLabel()
-#GET      /getNoteLabels/:noteId   controllers.NoteController.getNoteLabel(noteId: Int)
+GET      /getNoteLabels/:noteId   controllers.NoteController.getNoteLabel(noteId: Int)
 POST     /upload                  controllers.NoteController.upload()
 GET      /image/*file             controllers.NoteController.serveUploadedFiles2(file:String)
 GET      /getUser                 controllers.UserController.getUser()
 PUT      /updateUser              controllers.UserController.updateUser()
 DELETE   /removeLabel/:noteId/:labelId     controllers.NoteController.removeLabel(noteId: Int,labelId:Int)
-POST     /addCollaberator         controllers.
 
 
 # Map static resources from the /public folder to the /assets URL path
