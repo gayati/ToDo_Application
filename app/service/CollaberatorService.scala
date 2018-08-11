@@ -8,6 +8,7 @@ import scala.concurrent.ExecutionContext
 import model.Collaberator
 import scala.concurrent.Future
 import model.CollaberatorDto
+import model.User
 
 @Singleton
 class CollaberatorService @Inject() (userDao: UserDao)(implicit ec: ExecutionContext) extends ICollaberatorService {  
@@ -22,11 +23,10 @@ class CollaberatorService @Inject() (userDao: UserDao)(implicit ec: ExecutionCon
     }
      "addsuccess"
   }
-  
   }
   
-  override def getCollaberator(collaberatorId:Int):Future[Seq[Collaberator]]={
-    userDao.getCollaberator(collaberatorId) map { getCollaberatoFuture =>
+  override def getCollaberator(noteId:Int):Future[Seq[User]]={
+    userDao.getCollaberator(noteId) map { getCollaberatoFuture =>
       getCollaberatoFuture 
     }
   }

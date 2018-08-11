@@ -10,6 +10,7 @@ import play.api.mvc.Request
 import play.api.mvc.AnyContent
 import scala.concurrent.Future
 import model.CollaberatorDto
+import play.api.libs.json.Json
 
 @Singleton
 class CollaberatorCtrl @Inject() (collaberatorService: ICollaberatorService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
@@ -24,5 +25,13 @@ class CollaberatorCtrl @Inject() (collaberatorService: ICollaberatorService, cc:
       BadRequest("Registration Failed..!!")
     })
   }
+  
+    def getCollaberator(noteId:Int) = Action.async { implicit request: Request[AnyContent] =>
+      collaberatorService.getCollaberator(noteId) map { collaberators =>
+      collaberators
+      println(collaberators)
+      Ok(Json.toJson(collaberators))
+    }
+    }
   
 }

@@ -87,21 +87,16 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
         var labelList = noteService.getNoteLabels(note.noteId)
 
         var data = Await.result(labelList, 1 second)
+        
+        var collaberatorList = noteService.getCollaberatedNotes(note.noteId);
+        println(collaberatorList+"list of collaberattor..............................................")
+        
         println(data + "rtttttttttttttttttt")
         var noteDto = NoteDto(note.noteId,note.title, note.description, note.color, note.isArchived,
           note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy)
         println(noteDto + "noteDto.................................")
-
         x = x :+ (noteDto)
         println(x + "final list of notes.......................")
-
-        //           onComplete {
-        //        case Success(a) =>  println(labeList + "dfaefereruuuuuuuuuuuuuuuuuuuuu")
-        //        case Failure(e)=> Ok("")
-        //        }
-
-        //           println(labeList + "labe..........List")
-        //
 
       }
 

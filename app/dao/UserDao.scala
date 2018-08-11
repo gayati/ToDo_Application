@@ -141,13 +141,10 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
     def labelId = column[Int]("labelId")
 
-//    def note = foreignKey("noteId", noteId, notesTable)(_.noteId)
-//
-//    def label = foreignKey("labelId", labelId, labels)(_.labelId)
 
     def * = (noteId, labelId) <> ((NoteLabel.apply _).tupled, NoteLabel.unapply)
 
-  }
+  } 
   
   private val notesLabel = TableQuery[notesLabelTable]
 
@@ -239,13 +236,25 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     db.run(action) map { Id => Id }
 }
   
-    override def getCollaberator(collaberatorId:Int):Future[Seq[Collaberator]]={
-      db.run(collaberators.filter(_.collaberatorId === collaberatorId).result)
+    override def getCollaberator(noteId:Int):Future[Seq[User]]={
+      db.run {
+      val innerJoin = for {
+        (ab, a) <- collaberators join users on (_.sharedTo === _.id)
+      } yield (a, ab.noteId)
+      innerJoin.filter(_._2 === noteId).map(_._1).result
+    }
+    }
+    
+    override def getCollaberatedNote(noteId:Int):Future[Seq[Collaberator]]={
+      db.run(collaberators.filter(_.noteId===noteId).result)
     }
 
   
   
-  
+//      override def getCollaberator(sharedId:Int):Future[Seq[Collaberator]]={
+//      db.run(collaberators.filter(_.sharedBy === sharedId).result)
+//    
+//    }
   
   
   

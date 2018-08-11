@@ -10,6 +10,7 @@ import play.api.mvc.Request
 import play.api.libs.Files.TemporaryFile
 import play.api.mvc.MultipartFormData
 import model.CreateNoteDto
+import model.Collaberator
 
 
 @ImplementedBy(classOf[NoteService])
@@ -21,6 +22,5 @@ trait INoteService {
   def addnoteLabel(noteLabel:NoteLabel):Future[String]
   def getNoteLabels(noteId:Int): Future[Seq[Label]]
   def removeLabel(noteId:Int,labelId:Int):Future[String]
-  //def uploadFile(request:Request[MultipartFormData[TemporaryFile]]):String
-
+  def getCollaberatedNotes(noteId:Int):Future[Seq[Collaberator]]
 }

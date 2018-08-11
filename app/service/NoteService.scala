@@ -20,6 +20,7 @@ import play.api.mvc.MultipartFormData
 import play.api.libs.Files.TemporaryFile
 import play.api.Logger
 import model.CreateNoteDto
+import model.Collaberator
 
 @Singleton
 class NoteService @Inject() ( userDao: IUserDao, jwtToken: JwtToken)(implicit ec: ExecutionContext) extends INoteService {
@@ -133,6 +134,13 @@ class NoteService @Inject() ( userDao: IUserDao, jwtToken: JwtToken)(implicit ec
       }
         
       
+    }
+    
+    override def getCollaberatedNotes(noteId:Int):Future[Seq[Collaberator]]={
+      userDao.getCollaberatedNote(noteId)  map{ future =>
+        future
+        
+      }
     }
 
 
