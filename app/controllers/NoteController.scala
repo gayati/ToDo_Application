@@ -20,9 +20,11 @@ import model.Label
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import model.CreateNoteDto
+import service.IUserService
+import service.ICollaberatorService
 
 @Singleton
-class NoteController @Inject() (noteService: INoteService, cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+class NoteController @Inject() (noteService: INoteService, collaberatorService:ICollaberatorService,cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def createNote() = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
@@ -63,7 +65,6 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
     })
   }
   
-//
 //    def getNotes() = Action.async { implicit request: Request[AnyContent] =>
 //      var token = request.headers.get("Headers").get
 //      noteService.getNotes(token) map { notes =>
@@ -88,12 +89,18 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
 
         var data = Await.result(labelList, 1 second)
         
-        var collaberatorList = noteService.getCollaberatedNotes(note.noteId);
-        println(collaberatorList+"list of collaberattor..............................................")
+        var collaberatorList = collaberatorService.getCollaberator(note.noteId);
+          var data1 = Await.result(collaberatorList, 1 second)
+        println(data1+"list of collaberattor..............................................")
+
+              for (a <- 0 until data1.length by 1) {
+              var collaberatorObj = data1(a);
+              println("collaberatorObj.............................."+collaberatorObj)
+              }
         
         println(data + "rtttttttttttttttttt")
         var noteDto = NoteDto(note.noteId,note.title, note.description, note.color, note.isArchived,
-          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy)
+          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy,data1)
         println(noteDto + "noteDto.................................")
         x = x :+ (noteDto)
         println(x + "final list of notes.......................")
@@ -175,5 +182,12 @@ class NoteController @Inject() (noteService: INoteService, cc: ControllerCompone
       
     }
   }
+  
+//  def getCollaberatedNotes() =  Action.async { implicit request: Request[AnyContent] =>
+//    noteService.getCollaberatedNotes(noteId) map { notes =>
+//      notes
+//      println(notes)
+//      Ok(Json.toJson(notes))
+//    }
 
 }

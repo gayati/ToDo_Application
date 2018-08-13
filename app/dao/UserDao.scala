@@ -86,6 +86,9 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 //    db.run(users.filter(_.id === user.id).update(user))
 //    }
   
+//  def all() = db.run (users.result)
+
+  
   private class NoteTable(tag: Tag) extends Table[Note](tag, "Note") {
 
     def noteId = column[Int]("note_id", O.PrimaryKey, O.AutoInc)
@@ -114,9 +117,14 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     
     def image = column[Option[String]]("uploaded_image")
     
+        def colaberator = column[Int]("collaberator")
+
+   // def collaberatedUser = foreignKey("userId", sharedTo, collaberators)(_.sharedTo)
+
+    
 //    def labelList = column[[String]]("")
   
-    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder,remindertime,image) <> ((Note.apply _).tupled, Note.unapply)
+    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder,remindertime,image,colaberator) <> ((Note.apply _).tupled, Note.unapply)
   }
 
   private val notes = TableQuery[NoteTable]

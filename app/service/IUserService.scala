@@ -17,7 +17,7 @@ trait IUserService {
   def forgotUserPassword(host:String,url:String,passwordDto: ForgotPasswordDto): Future[String]
   def resetUserPassword(token: String, passwordDto: PasswordDto): Future[String]
   def updateUser(user:User):Future[String]
-  def getUser(token:String):Future[Option[User]]
+  def getUser(userID:Int):Future[Option[User]]
   
 
 }

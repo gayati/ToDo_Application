@@ -29,7 +29,7 @@ object PasswordDto {
 case class NoteDto(noteId:Int,title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
     isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],
-    labelList:Seq[Label],createdBy:Int)
+    labelList:Seq[Label],createdBy:Int,collaberatorList:Seq[User])
 
 
 object NoteDto {

@@ -141,7 +141,9 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
   
    def getUser() = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
-    userService.getUser(token) map { user =>
+        val userId = jwttoken.getTokenId(token)
+
+    userService.getUser(userId) map { user =>
       user
       println(user)
       Ok(Json.toJson(user))

@@ -213,9 +213,9 @@ class UserService @Inject() (uservalidation: UserValidation, userDao: IUserDao, 
     }
   }
   
-    override def getUser(token: String): Future[Option[User]] = {
-      println("In get user token:......................." + token)
-    val userId = jwttoken.getTokenId(token)
+    override def getUser(userId: Int): Future[Option[User]] = {
+      println("In get user token:......................." + userId)
+//    val userId = jwttoken.getTokenId(token)
     println("In get user................." + userId)
     userDao.getUserById(userId) map { userFuture =>
       if (!(userFuture.equals(None))) {

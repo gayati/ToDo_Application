@@ -37,7 +37,7 @@ class NoteService @Inject() ( userDao: IUserDao, jwtToken: JwtToken)(implicit ec
         //        var reminderDate = new Date(note.reminder)
         //        }
         val note1 = Note(0, note.title, note.description, date, date, note.color, note.isArchived,
-          note.isPinned, note.isTrashed, user.id, note.reminder, note.remindertime, note.image)
+          note.isPinned, note.isTrashed, user.id, note.reminder, note.remindertime, note.image,0)
         userDao.createNote(note1) map { createNoteFuture =>
           createNoteFuture
           "Note Created successfully"
@@ -84,14 +84,13 @@ class NoteService @Inject() ( userDao: IUserDao, jwtToken: JwtToken)(implicit ec
           // println("In jfddddkkgfgdfgbg"+note + "In jfddddkkgfgdfgbg")
 
           note = Note(note.noteId, noteDto.title, noteDto.description, note.createdDate, date1, noteDto.color,
-            noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy, noteDto.reminder, noteDto.remindertime, noteDto.image)
+            noteDto.isArchived, noteDto.isPinned, noteDto.isTrashed, note.createdBy, noteDto.reminder, noteDto.remindertime, noteDto.image,0)
           var result: String = ""
           userDao.updateNote(note) map { updatenoteFuture =>
             "success"
 
           }
           "success"
-
         } else { "Acesss denied........." }
       } else { "Note not found" }
     }
