@@ -54,7 +54,9 @@ class NoteController @Inject() (noteService: INoteService, collaberatorService:I
     var token = request.headers.get("Headers").get
     println("Update nOte " + token)
     request.body.asJson.map { json =>
+      println(CreateNoteDto.toString() + "Cretate..................")
       var note: CreateNoteDto = json.as[CreateNoteDto]
+      println("reminder.........." + note.reminder)
       noteService.updateNote(noteId, token, note) map { updateFuture =>
         updateFuture match {
           case success => Ok("Update success............")
