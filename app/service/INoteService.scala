@@ -23,4 +23,6 @@ trait INoteService {
   def getNoteLabels(noteId:Int): Future[Seq[Label]]
   def removeLabel(noteId:Int,labelId:Int):Future[String]
   def getCollaberatedNotes(noteId:Int):Future[Seq[Collaberator]]
+   def getNoteById(id: Int): Future[Option[Note]]
+
 }

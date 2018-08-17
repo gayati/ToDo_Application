@@ -150,6 +150,12 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
     }
   }
    
+   def getAllUsers =Action.async { implicit request: Request[AnyContent] =>
+   userService.getAllUsers map { users =>
+     users
+      Ok(Json.toJson(users))
+   }
+   }
 }
  
   

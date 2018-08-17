@@ -15,6 +15,7 @@ trait IUserDao {
   def login(user: User): Future[Option[User]]
   def getUserById(id:Int):Future[Option[User]]
   def getUsetByEmail(email: String): Future[Option[User]]
+  def all :Future[Seq[User]]
   def update(user:User):Future[Int]
   def getUserByemail(emailid:String):Future[Option[User]]
   def createNote(note: Note): Future[Int]
@@ -33,5 +34,6 @@ trait IUserDao {
   def removeLabel(noteId:Int,labelId:Int):Future[Int]
   def addCollaberator(collaberator:Collaberator):Future[Int]
   def getCollaberator(noteId:Int):Future[Seq[User]]
-  def getCollaberatedNote(noteId:Int):Future[Seq[Collaberator]]
+  def getCollaberatedNote(sharedId:Int):Future[Seq[Collaberator]]
+  
 }  

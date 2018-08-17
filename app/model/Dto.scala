@@ -29,11 +29,21 @@ object PasswordDto {
 case class NoteDto(noteId:Int,title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
     isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],
-    labelList:Seq[Label],createdBy:Int,collaberatorList:Seq[User])
+    labelList:Seq[Label],createdBy:Int)
 
 
 object NoteDto {
   implicit val NoteDto = Json.format[NoteDto]
+}
+
+case class CollabNoteDto(noteId:Int,title: String, description: String,color:String,isArchived:Boolean,
+    isPinned:Boolean,
+    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],
+    labelList:Seq[Label],createdBy:Int,collaberatorList:Seq[User])
+
+
+object CollabNoteDto {
+  implicit val NoteDto = Json.format[CollabNoteDto]
 }
 
 case class CreateNoteDto(title: String, description: String,color:String,isArchived:Boolean,
@@ -45,7 +55,9 @@ object CreateNoteDto {
   implicit val CreateNoteDto = Json.format[CreateNoteDto]
 }
 
-case class CollaberatorDto(sharedBy:Int,sharedTo:String,noteId:Int)
+
+
+case class CollaberatorDto(sharedBy:Int,sharedTo:Int,noteId:Int)
 
 object CollaberatorDto{
   implicit val CollaberatorDto = Json.format[CollaberatorDto]

@@ -22,12 +22,11 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   import dbConfig._
   import profile.api._
 
-  
-   implicit val JavaUtilDateMapper =
+  implicit val JavaUtilDateMapper =
     MappedColumnType.base[java.util.Date, java.sql.Timestamp](
       d => new java.sql.Timestamp(d.getTime),
       d => new java.util.Date(d.getTime))
-      
+
   private class UserTable(tag: Tag) extends Table[User](tag, "user") {
 
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -43,10 +42,10 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def passWord = column[String]("password")
 
     def isVerified = column[Boolean]("isverified")
-    
+
     def profileImage = column[Option[String]]("profile_image")
 
-    override def * = (id, firstName, lastName, mobileNumber, email, passWord, isVerified,profileImage) <> ((User.apply _).tupled, User.unapply)
+    override def * = (id, firstName, lastName, mobileNumber, email, passWord, isVerified, profileImage) <> ((User.apply _).tupled, User.unapply)
 
   }
 
@@ -82,13 +81,12 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     db.run(users.filter(_.email === emailid).result.headOption)
   }
 
-//    override def updateUser(user:User):Future[Int]={
-//    db.run(users.filter(_.id === user.id).update(user))
-//    }
-  
-//  def all() = db.run (users.result)
+  //    override def updateUser(user:User):Future[Int]={
+  //    db.run(users.filter(_.id === user.id).update(user))
+  //    }
 
-  
+  def all: Future[Seq[User]] = db.run(users.result)
+
   private class NoteTable(tag: Tag) extends Table[Note](tag, "Note") {
 
     def noteId = column[Int]("note_id", O.PrimaryKey, O.AutoInc)
@@ -112,19 +110,18 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def createdBy = column[Int]("created_by")
 
     def reminder = column[Option[Date]]("remin_der")
-    
+
     def remindertime = column[Option[String]]("reminder_time")
-    
+
     def image = column[Option[String]]("uploaded_image")
-    
-        def colaberator = column[Int]("collaberator")
 
-   // def collaberatedUser = foreignKey("userId", sharedTo, collaberators)(_.sharedTo)
+    def colaberator = column[Int]("collaberator")
 
-    
-//    def labelList = column[[String]]("")
-  
-    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder,remindertime,image,colaberator) <> ((Note.apply _).tupled, Note.unapply)
+    // def collaberatedUser = foreignKey("userId", sharedTo, collaberators)(_.sharedTo)
+
+    //    def labelList = column[[String]]("")
+
+    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder, remindertime, image, colaberator) <> ((Note.apply _).tupled, Note.unapply)
   }
 
   private val notes = TableQuery[NoteTable]
@@ -141,7 +138,6 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   }
 
   private val labels = TableQuery[LabelTabel]
-  
 
   private class notesLabelTable(tag: Tag) extends Table[NoteLabel](tag, "NoteLabel") {
 
@@ -149,11 +145,10 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
 
     def labelId = column[Int]("labelId")
 
-
     def * = (noteId, labelId) <> ((NoteLabel.apply _).tupled, NoteLabel.unapply)
 
-  } 
-  
+  }
+
   private val notesLabel = TableQuery[notesLabelTable]
 
   override def createNote(note: Note): Future[Int] = {
@@ -168,6 +163,10 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
   override def getNoteById(id: Int): Future[Option[Note]] = {
     db.run(notes.filter((_.noteId === id)).result.headOption)
   }
+
+  //   override def getNoteById1(id: Int): Future[Option[Note]] = {
+  //    db.run(notes.filter((_.noteId === id)).result.headOption)
+  //  }
 
   override def getNoteBytitle(title: String): Future[Option[Note]] = {
     db.run(notes.filter((_.title === title)).result.headOption)
@@ -202,11 +201,10 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     db.run(labels.filter(_.labelId === label.labelId).update(label))
   }
 
-  override def addNoteLabel(noteLabel: NoteLabel):Future[Int] = {
-   db.run(notesLabel += noteLabel)
+  override def addNoteLabel(noteLabel: NoteLabel): Future[Int] = {
+    db.run(notesLabel += noteLabel)
   }
-  
- 
+
   def getNoteLabels(noteId: Int): Future[Seq[Label]] = {
     db.run {
       val innerJoin = for {
@@ -215,73 +213,50 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
       innerJoin.filter(_._2 === noteId).map(_._1).result
     }
   }
-  
-   def removeLabel(noteId:Int,labelId:Int):Future[Int]={
-//         db.run(notesLabel.filter(_.noteId === noteId).delete)
 
-    db.run(notesLabel.filter(value => value.noteId === noteId 
-         && value.labelId === labelId).delete)
-   }
-   
-   private class CollaberatorTabel(tag: Tag) extends Table[Collaberator](tag, "Collaberator") {
+  def removeLabel(noteId: Int, labelId: Int): Future[Int] = {
+    //         db.run(notesLabel.filter(_.noteId === noteId).delete)
+
+    db.run(notesLabel.filter(value => value.noteId === noteId
+      && value.labelId === labelId).delete)
+  }
+
+  private class CollaberatorTabel(tag: Tag) extends Table[Collaberator](tag, "Collaberator") {
 
     def collaberatorId = column[Int]("collaberator_id", O.PrimaryKey, O.AutoInc)
 
     def sharedBy = column[Int]("shared_by")
 
     def sharedTo = column[Int]("shared_to")
-    
+
     def noteId = column[Int]("note_id")
 
-
-    override def * = (collaberatorId,sharedBy, sharedTo, noteId) <> ((Collaberator.apply _).tupled, Collaberator.unapply)
+    override def * = (collaberatorId, sharedBy, sharedTo, noteId) <> ((Collaberator.apply _).tupled, Collaberator.unapply)
   }
 
   private val collaberators = TableQuery[CollaberatorTabel]
-  
-  override def addCollaberator(collaberator:Collaberator):Future[Int]={
-     val action = ((collaberators returning collaberators.map(_.collaberatorId)) += collaberator)
-    db.run(action) map { Id => Id }
-}
-  
-    override def getCollaberator(noteId:Int):Future[Seq[User]]={
-      db.run {
+
+  override def addCollaberator(collaberator: Collaberator): Future[Int] = {
+    val action = ((collaberators returning collaberators.map(_.collaberatorId)) += collaberator)
+     db.run(action) map { Id => Id }
+      }
+
+  override def getCollaberator(noteId: Int): Future[Seq[User]] = {
+    db.run {
       val innerJoin = for {
         (ab, a) <- collaberators join users on (_.sharedTo === _.id)
       } yield (a, ab.noteId)
       innerJoin.filter(_._2 === noteId).map(_._1).result
     }
-    }
-    
-    override def getCollaberatedNote(noteId:Int):Future[Seq[Collaberator]]={
-      db.run(collaberators.filter(_.noteId===noteId).result)
-    }
+  }
 
-  
-  
-//      override def getCollaberator(sharedId:Int):Future[Seq[Collaberator]]={
-//      db.run(collaberators.filter(_.sharedBy === sharedId).result)
-//    
-//    }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  override def getCollaberatedNote(sharedTo: Int): Future[Seq[Collaberator]] = {
+    db.run(collaberators.filter(_.sharedTo === sharedTo).result)
+  }
+
+  //      override def getCollaberator(sharedId:Int):Future[Seq[Collaberator]]={
+  //      db.run(collaberators.filter(_.sharedBy === sharedId).result)
+  //
+  //    }
+
 }

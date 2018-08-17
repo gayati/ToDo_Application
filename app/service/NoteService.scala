@@ -141,6 +141,13 @@ class NoteService @Inject() ( userDao: IUserDao, jwtToken: JwtToken)(implicit ec
         
       }
     }
+    
+     override def getNoteById(id: Int): Future[Option[Note]]={
+        userDao.getNoteById(id) map { getNoteFuture =>
+          getNoteFuture
+          
+        } 
+      }
 
 
   //override def uploadFile(request:Request[MultipartFormData[TemporaryFile]]):String ={

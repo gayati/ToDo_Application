@@ -91,18 +91,18 @@ class NoteController @Inject() (noteService: INoteService, collaberatorService:I
 
         var data = Await.result(labelList, 1 second)
         
-        var collaberatorList = collaberatorService.getCollaberator(note.noteId);
-          var data1 = Await.result(collaberatorList, 1 second)
-        println(data1+"list of collaberattor..............................................")
-
-              for (a <- 0 until data1.length by 1) {
-              var collaberatorObj = data1(a);
-              println("collaberatorObj.............................."+collaberatorObj)
-              }
+//        var collaberatorList = collaberatorService.getCollaberator(note.noteId);
+//          var data1 = Await.result(collaberatorList, 1 second)
+//        println(data1+"list of collaberattor..............................................")
+//
+//              for (a <- 0 until data1.length by 1) {
+//              var collaberatorObj = data1(a);
+//              println("collaberatorObj.............................."+collaberatorObj)
+//              }
         
         println(data + "rtttttttttttttttttt")
         var noteDto = NoteDto(note.noteId,note.title, note.description, note.color, note.isArchived,
-          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy,data1)
+          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy)
         println(noteDto + "noteDto.................................")
         x = x :+ (noteDto)
         println(x + "final list of notes.......................")

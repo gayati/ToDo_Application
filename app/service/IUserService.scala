@@ -18,6 +18,6 @@ trait IUserService {
   def resetUserPassword(token: String, passwordDto: PasswordDto): Future[String]
   def updateUser(user:User):Future[String]
   def getUser(userID:Int):Future[Option[User]]
-  
-
+  def getUserByEmail(email:String):Future[Option[User]]
+    def getAllUsers :Future[Seq[User]]
 }
