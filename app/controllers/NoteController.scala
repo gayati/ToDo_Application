@@ -91,9 +91,9 @@ class NoteController @Inject() (noteService: INoteService, collaberatorService:I
 
         var data = Await.result(labelList, 1 second)
         
-//        var collaberatorList = collaberatorService.getCollaberator(note.noteId);
-//          var data1 = Await.result(collaberatorList, 1 second)
-//        println(data1+"list of collaberattor..............................................")
+        var collaberatorList = collaberatorService.getCollaberator(note.noteId);
+          var data1 = Await.result(collaberatorList, 1 second)
+        println(data1+"list of collaberattor..............................................")
 //
 //              for (a <- 0 until data1.length by 1) {
 //              var collaberatorObj = data1(a);
@@ -102,7 +102,7 @@ class NoteController @Inject() (noteService: INoteService, collaberatorService:I
         
         println(data + "rtttttttttttttttttt")
         var noteDto = NoteDto(note.noteId,note.title, note.description, note.color, note.isArchived,
-          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy)
+          note.isPinned, note.isTrashed, note.reminder, note.remindertime, note.image, data, note.createdBy,data1)
         println(noteDto + "noteDto.................................")
         x = x :+ (noteDto)
         println(x + "final list of notes.......................")
@@ -155,8 +155,6 @@ class NoteController @Inject() (noteService: INoteService, collaberatorService:I
   def upload = Action(parse.multipartFormData) { request =>
     request.body.file("file").map { picture =>
       print("In upload............+ " + picture)
-      // only get the last part of the filename
-      // otherwise someone can send a path like ../../home/foo/bar.txt to write to other files on the system
       val filename = Paths.get(picture.filename).getFileName
       println("File uplo..aded..................." + filename)
       picture.ref.moveTo(Paths.get(s"/home/bridgeit/Documents/scala-project/PlaySampleProject/todo_app/app/tmp/$filename"), replace = true)
@@ -173,15 +171,12 @@ class NoteController @Inject() (noteService: INoteService, collaberatorService:I
       fileName = _ => file)
   }
   
+  
   def removeLabel(noteId: Int,labelId:Int) = Action.async { implicit request: Request[AnyContent] =>
     var token = request.headers.get("Headers").get
     println(labelId + "In remove Label........................")
     noteService.removeLabel(noteId,labelId) map { deleteFuture =>
       Ok(deleteFuture)
-//      deleteFuture match {
-//        case "DeleteSuccess"    => Ok("Delete success..........")
-//        case "DeleteNotSuccess" => Conflict("Delete failure.........")
-      
     }
   }
   

@@ -31,6 +31,8 @@ libraryDependencies += play.sbt.PlayImport.cacheApi
 libraryDependencies += "com.github.karelcemus" %% "play-redis" % "2.1.2"
 
 
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
+libraryDependencies += "com.beachape.metascraper" %% "metascraper" % s"$version-SNAPSHOT"
 
 
