@@ -180,11 +180,4 @@ class NoteController @Inject() (noteService: INoteService, collaberatorService:I
     }
   }
   
-//  def getCollaberatedNotes() =  Action.async { implicit request: Request[AnyContent] =>
-//    noteService.getCollaberatedNotes(noteId) map { notes =>
-//      notes
-//      println(notes)
-//      Ok(Json.toJson(notes))
-//    }
-
 }

@@ -34,14 +34,13 @@ class CollaberatorCtrl @Inject() (collaberatorService: ICollaberatorService, not
   }
 
   def getCollaberator(noteId: Int) = Action.async { implicit request: Request[AnyContent] =>
-    
-    
     collaberatorService.getCollaberator(noteId) map { collaberators =>
       collaberators
       println(collaberators)
       Ok(Json.toJson(collaberators))
     }
   }
+  
  
   def getCollaberatedNotes(sharedTo: Int) = Action.async { implicit request: Request[AnyContent] =>
     collaberatorService.getCollaberatedNotes(sharedTo) map { collaberatedNote =>
