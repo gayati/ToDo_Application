@@ -63,7 +63,8 @@ class CollaberatorCtrl @Inject() (collaberatorService: ICollaberatorService, not
           var data1 = Await.result(collaberatorList, 1 second)
 
           var noteDto = NoteDto(note2.noteId, note2.title, note2.description, note2.color, note2.isArchived,
-            note2.isPinned, note2.isTrashed, note2.reminder, note2.remindertime, note2.image, labellist, note2.createdBy,data1)
+            note2.isPinned, note2.isTrashed, note2.reminder, note2.remindertime, note2.image, labellist, 
+            note2.createdBy,data1,note2.showLink,note2.scrapUrl:String,note2.urlTitle:String,note2.imageLink:String)
           println(noteDto + "noteDto.................................")
           x = x :+ (noteDto)
           println(x + "final list of notes.......................")

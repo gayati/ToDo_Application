@@ -116,12 +116,19 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     def image = column[Option[String]]("uploaded_image")
 
     def colaberator = column[Int]("collaberator")
+    
+    def showlink = column[Boolean]("showLink")
+    
+    def scrapUrl = column[String]("scrap_url")
+    
+    def urlTitle = column[String]("url_title")
+    
+    def imageLink = column[String]("image_link")
 
     // def collaberatedUser = foreignKey("userId", sharedTo, collaberators)(_.sharedTo)
 
-    //    def labelList = column[[String]]("")
-
-    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder, remindertime, image, colaberator) <> ((Note.apply _).tupled, Note.unapply)
+   
+    override def * = (noteId, title, description, createddate, updatedDate, color, isarchived, ispinned, istrashed, createdBy, reminder, remindertime, image, colaberator,showlink,scrapUrl,urlTitle,imageLink) <> ((Note.apply _).tupled, Note.unapply)
   }
 
   private val notes = TableQuery[NoteTable]
@@ -254,9 +261,9 @@ class UserDao @Inject() (dbConfigProvider: DatabaseConfigProvider)(implicit ec: 
     db.run(collaberators.filter(_.sharedTo === sharedTo).result)
   }
 
-  //      override def getCollaberator(sharedId:Int):Future[Seq[Collaberator]]={
-  //      db.run(collaberators.filter(_.sharedBy === sharedId).result)
-  //
-  //    }
+  def removeCollaberator(noteId: Int, userId: Int): Future[Int] = {
+    db.run(collaberators.filter(value => value.noteId === noteId
+      && value.sharedBy === userId).delete)
+  }
 
 }

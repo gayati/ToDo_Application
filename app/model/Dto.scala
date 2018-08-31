@@ -29,7 +29,7 @@ object PasswordDto {
 case class NoteDto(noteId:Int,title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
     isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],
-    labelList:Seq[Label],createdBy:Int,collaberatorList:Seq[User])
+    labelList:Seq[Label],createdBy:Int,collaberatorList:Seq[User],showLink:Boolean,scrapUrl:String,urlTitle:String,imageLink:String)
 
 
 object NoteDto {
@@ -39,7 +39,7 @@ object NoteDto {
 case class CollabNoteDto(noteId:Int,title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
     isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],
-    labelList:Seq[Label],createdBy:Int,collaberatorList:Seq[User])
+    labelList:Seq[Label],createdBy:Int,collaberatorList:Seq[User],showLink:Boolean)
 
 
 object CollabNoteDto {
@@ -48,7 +48,8 @@ object CollabNoteDto {
 
 case class CreateNoteDto(title: String, description: String,color:String,isArchived:Boolean,
     isPinned:Boolean,
-    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],image:Option[String],labelList:Seq[Label])
+    isTrashed:Boolean,reminder:Option[Date],remindertime:Option[String],
+    image:Option[String],labelList:Seq[Label],showLink:Boolean,scrapUrl:String,urlTitle:String,imageLink:String)
 
 
 object CreateNoteDto {
@@ -64,6 +65,10 @@ object CollaberatorDto{
 }
 
 
+case class scrapDto(image:String,title:String)
 
+object scrapDto{
+  implicit val scrapDto = Json.format[scrapDto]
+}
 
 

@@ -156,6 +156,14 @@ class UserController @Inject() (userService: IUserService, uservalidation: UserV
       Ok(Json.toJson(users))
    }
    }
+   
+    def getOwner(userId:Int) = Action.async { implicit request: Request[AnyContent] =>
+    userService.getUser(userId) map { user =>
+      user
+      println(user)
+      Ok(Json.toJson(user))
+    }
+  }
 }
  
   

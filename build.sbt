@@ -30,4 +30,6 @@ libraryDependencies += play.sbt.PlayImport.cacheApi
 
 libraryDependencies += "com.github.karelcemus" %% "play-redis" % "2.1.2"
 
+// https://mvnrepository.com/artifact/com.beachape.metascraper/metascraper
+libraryDependencies += "com.beachape.metascraper" %% "metascraper" % "0.4.0"
 

@@ -35,5 +35,5 @@ trait IUserDao {
   def addCollaberator(collaberator:Collaberator):Future[Int]
   def getCollaberator(noteId:Int):Future[Seq[User]]
   def getCollaberatedNote(sharedId:Int):Future[Seq[Collaberator]]
-  
+    def removeCollaberator(noteId: Int, userId: Int): Future[Int]
 }  

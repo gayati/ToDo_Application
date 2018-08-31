@@ -36,10 +36,28 @@ class CollaberatorService @Inject() (userDao: UserDao)(implicit ec: ExecutionCon
   override def getCollaberatedNotes(sharedTo:Int):Future[Seq[Collaberator]] = {
     userDao.getCollaberatedNote(sharedTo) map { getFuture  =>
       getFuture
-      
     }
   }
   
+  
+//  override def removeCollaberator(noteId: Int, userId: String): Future[String] = {
+//    userDao.getLabelById() map { labelFuture =>
+//      if (!(labelFuture.equals(None))) {
+//        val label = labelFuture.get
+//        if (uId == label.userId) {
+//          userDao.deleteLabel(labelId) map { deletelabelFuture =>
+//            deletelabelFuture
+//            "DeleteSuccess"
+//          }
+//        } else {
+//          "DeleteNotSuccess"
+//        }
+//        "DeleteSuccess"
+//      } else {
+//        "DeleteNotSuccess"
+//      }
+//    }
+//  }
      
 
 
